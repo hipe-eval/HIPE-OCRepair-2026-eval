@@ -27,10 +27,20 @@ System outputs are evaluated against gold-standard reference data using the offi
 ### Repository structure
 
 ```bash
-evaluation/      # System outputs submitted by participants
-data/            # Test datasets used for the evaluation
-lib/             # Scripts to evaluate submission and prepare results aggregations
-results/         # Evaluation results and rankings
+data/
+  reference/     # Gold-standard reference JSONL files (one per dataset/split/language)
+evaluation/
+  system-responses/
+    submitted/   # Participant submission JSONL files
+lib/
+  score_one.py          # Score a single hypothesis against its reference
+  build_rankings.py     # Aggregate per-run scores into ranked TSV files
+  build_results_md.py   # Render TSV rankings as a Markdown results page
+  teams.json            # Team name → institution mapping
+results/
+  per-run/              # Per-submission scorer output JSON (regenerated, not committed)
+  system-rankings/      # Per-dataset/split/language ranked TSV files
+HIPE_OCRepair_2026_evaluation_results.md   # Final results page (generated)
 ```
 
 ### Installation
@@ -59,3 +69,45 @@ make eval-full   # Creates all evaluation steps
 # in case you want to start from scratch and refresh all derived files
 make eval-full-refresh
 ```
+
+### Submission format
+
+Submission files are JSONL files (one JSON object per line). Each record must contain the following fields:
+
+```json
+{
+  "document_metadata": {
+    "document_id": "unique-id",
+    "primary_dataset_name": "impresso-snippets"
+  },
+  "ground_truth": {
+    "transcription_unit": "Reference transcription text"
+  },
+  "ocr_hypothesis": {
+    "transcription_unit": "Original OCR text (as provided)"
+  },
+  "ocr_postcorrection_output": {
+    "transcription_unit": "Your system's corrected text"
+  }
+}
+```
+
+**File naming convention:**
+
+```
+<teamname>_hipe-ocrepair-bench_<version>_<dataset>_<split>_<language>_run<N>.jsonl
+```
+
+- `<teamname>`: lowercase alphanumeric characters and hyphens only — **no underscores**
+- `<version>`, `<dataset>`, `<split>`, `<language>`: must match the corresponding reference file
+- `run<N>`: `run1`, `run2`, or `run3` — up to 3 runs per reference file per team
+
+Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1.jsonl`
+
+Place submission files in `evaluation/system-responses/submitted/`.
+
+### Results
+
+The evaluation results are available in [HIPE_OCRepair_2026_evaluation_results.md](HIPE_OCRepair_2026_evaluation_results.md) and on the [HIPE-OCRepair-2026 website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results).
+
+Rankings are sorted by `cmer_macro` (Character Match Error Rate, macro-averaged; lower is better). The secondary sort key is `pref_score_cmer_macro` (higher is better).

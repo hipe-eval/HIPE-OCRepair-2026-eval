@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""Build TSV ranking files from per-run score JSON files.
+
+Reads results/per-run/*.json, groups by (dataset, split, language),
+sorts by cmer_macro ascending (lower is better), and writes one TSV
+per group to results/system-rankings/.
+
+Also produces an overall weighted ranking per split:
+  ranking-overall-<split>-weighted.tsv
+
+Weighting scheme for the overall score:
+  - Non-DTA test sets: weight = 1
+  - DTA test sets (dta19-l0, dta19-l1, dta19-l2): weight = 1/3 each
+    so that the three DTA parts together contribute as one dataset.
+
+Overall primary metric:  weighted mean of per-test-set cmer_micro
+Overall secondary metric: weighted mean of per-test-set pref_score_cmer_macro
+"""
+
+import argparse
+import csv
+import json
+import re
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+# Parses hypothesis stem:
+# team1_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1
+HYPO_PATTERN = re.compile(
+    r"^(?P<teamname>[^_]+)_"
+    r"hipe-ocrepair-bench_(?P<version>[^_]+)_"
+    r"(?P<dataset>.+)_"
+    r"(?P<split>train|dev|test)_(?P<language>[a-z]{2})_"
+    r"(?P<run>run\d+)$",
+    re.IGNORECASE,
+)
+
+# DTA noise-level datasets each get weight 1/3 in the overall ranking.
+DTA_WEIGHT_PATTERN = re.compile(r"^dta19-l\d+$", re.IGNORECASE)
+
+
+def dataset_weight(dataset: str) -> float:
+    """Return the macro-average design weight for a dataset."""
+    return 1 / 3 if DTA_WEIGHT_PATTERN.match(dataset) else 1.0
+
+
+def parse_hypothesis_stem(stem: str) -> dict | None:
+    m = HYPO_PATTERN.match(stem)
+    if not m:
+        return None
+    return m.groupdict()
+
+
+def extract_metrics(averaged_scores: dict) -> dict:
+    def get(key):
+        v = averaged_scores.get(key, [None, None, None])
+        return v[0], v[1], v[2]
+
+    cm, cm_lo, cm_hi = get("cmer_macro")
+    pref, pref_lo, pref_hi = get("pref_score_cmer_macro")
+    cmi, cmi_lo, cmi_hi = get("cmer_micro")
+    wm = averaged_scores.get("wmer_macro", [None])[0]
+
+    return {
+        "cmer_macro": cm,
+        "cmer_macro_lo": cm_lo,
+        "cmer_macro_hi": cm_hi,
+        "pref_score_cmer_macro": pref,
+        "pref_score_cmer_macro_lo": pref_lo,
+        "pref_score_cmer_macro_hi": pref_hi,
+        "cmer_micro": cmi,
+        "cmer_micro_lo": cmi_lo,
+        "cmer_micro_hi": cmi_hi,
+        "wmer_macro": wm,
+    }
+
+
+def weighted_mean(value_weight_pairs) -> float | None:
+    """Weighted mean over (value, weight) pairs; None values are skipped."""
+    pairs = [(v, w) for v, w in value_weight_pairs if v is not None]
+    if not pairs:
+        return None
+    total_w = sum(w for _, w in pairs)
+    return sum(v * w for v, w in pairs) / total_w
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Build TSV ranking files from per-run score JSONs."
+    )
+    parser.add_argument(
+        "--per-run-dir", required=True, help="Directory with per-run JSON files."
+    )
+    parser.add_argument(
+        "--output-dir", required=True, help="Directory to write ranking TSV files."
+    )
+    args = parser.parse_args()
+
+    per_run_dir = Path(args.per_run_dir)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    json_files = sorted(per_run_dir.glob("*.json"))
+    if not json_files:
+        print(f"[ERROR] No JSON files found in {per_run_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    # Per-test-set groups: (dataset, split, language) -> list of row dicts
+    groups: dict[tuple, list] = defaultdict(list)
+    # Overall ranking data: split -> {(teamname, run) -> {(dataset, language) -> metrics}}
+    overall: dict[str, dict] = defaultdict(lambda: defaultdict(dict))
+
+    for json_path in json_files:
+        stem = json_path.stem
+        meta = parse_hypothesis_stem(stem)
+        if meta is None:
+            print(
+                f"[WARNING] Cannot parse filename: {stem}, skipping.", file=sys.stderr
+            )
+            continue
+
+        with open(json_path, encoding="utf-8") as f:
+            data = json.load(f)
+
+        metrics = extract_metrics(data.get("averaged_scores", {}))
+        key = (meta["dataset"], meta["split"], meta["language"])
+        groups[key].append({"system": stem, **metrics})
+
+        system_key = (meta["teamname"], meta["run"])
+        dataset_key = (meta["dataset"], meta["language"])
+        overall[meta["split"]][system_key][dataset_key] = metrics
+
+    # --- Per-test-set TSVs ---
+    FIELDNAMES = [
+        "rank",
+        "system",
+        "cmer_macro",
+        "cmer_macro_lo",
+        "cmer_macro_hi",
+        "pref_score_cmer_macro",
+        "pref_score_cmer_macro_lo",
+        "pref_score_cmer_macro_hi",
+        "cmer_micro",
+        "wmer_macro",
+    ]
+
+    for (dataset, split, language), rows in sorted(groups.items()):
+        rows.sort(
+            key=lambda r: (
+                r["cmer_macro"] if r["cmer_macro"] is not None else float("inf"),
+                -(
+                    r["pref_score_cmer_macro"]
+                    if r["pref_score_cmer_macro"] is not None
+                    else float("-inf")
+                ),
+            )
+        )
+
+        tsv_name = f"ranking-{dataset}-{split}-{language}-cmer-macro.tsv"
+        tsv_path = output_dir / tsv_name
+
+        with open(tsv_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f, fieldnames=FIELDNAMES, delimiter="\t", extrasaction="ignore"
+            )
+            writer.writeheader()
+            for rank, row in enumerate(rows, 1):
+                writer.writerow({"rank": rank, **row})
+
+        print(f"Written: {tsv_path} ({len(rows)} systems)", file=sys.stderr)
+
+    # --- Overall weighted ranking per split ---
+    # Determine full set of (dataset, language) keys per split for completeness tracking.
+    all_test_sets: dict[str, set] = defaultdict(set)
+    for dataset, split, language in groups:
+        all_test_sets[split].add((dataset, language))
+
+    OVERALL_FIELDNAMES = [
+        "rank",
+        "system",
+        "overall_cmer",
+        "overall_cmer_lo",
+        "overall_cmer_hi",
+        "overall_pref",
+        "overall_pref_lo",
+        "overall_pref_hi",
+        "n_test_sets",
+        "n_total_test_sets",
+    ]
+
+    for split, systems in sorted(overall.items()):
+        n_total = len(all_test_sets[split])
+        rows = []
+        for (teamname, run), dataset_metrics in systems.items():
+            entries = [
+                {
+                    "cmi": m["cmer_micro"],
+                    "cmi_lo": m["cmer_micro_lo"],
+                    "cmi_hi": m["cmer_micro_hi"],
+                    "pref": m["pref_score_cmer_macro"],
+                    "pref_lo": m["pref_score_cmer_macro_lo"],
+                    "pref_hi": m["pref_score_cmer_macro_hi"],
+                    "w": dataset_weight(d),
+                }
+                for (d, _l), m in sorted(dataset_metrics.items())
+            ]
+            rows.append(
+                {
+                    "system": f"{teamname}_{run}",
+                    "overall_cmer": weighted_mean((e["cmi"], e["w"]) for e in entries),
+                    "overall_cmer_lo": weighted_mean(
+                        (e["cmi_lo"], e["w"]) for e in entries
+                    ),
+                    "overall_cmer_hi": weighted_mean(
+                        (e["cmi_hi"], e["w"]) for e in entries
+                    ),
+                    "overall_pref": weighted_mean((e["pref"], e["w"]) for e in entries),
+                    "overall_pref_lo": weighted_mean(
+                        (e["pref_lo"], e["w"]) for e in entries
+                    ),
+                    "overall_pref_hi": weighted_mean(
+                        (e["pref_hi"], e["w"]) for e in entries
+                    ),
+                    "n_test_sets": len(dataset_metrics),
+                    "n_total_test_sets": n_total,
+                }
+            )
+
+        rows.sort(
+            key=lambda r: (
+                r["overall_cmer"] if r["overall_cmer"] is not None else float("inf"),
+                -(
+                    r["overall_pref"]
+                    if r["overall_pref"] is not None
+                    else float("-inf")
+                ),
+            )
+        )
+
+        tsv_name = f"ranking-overall-{split}-weighted.tsv"
+        tsv_path = output_dir / tsv_name
+
+        with open(tsv_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f, fieldnames=OVERALL_FIELDNAMES, delimiter="\t", extrasaction="ignore"
+            )
+            writer.writeheader()
+            for rank, row in enumerate(rows, 1):
+                writer.writerow({"rank": rank, **row})
+
+        print(
+            f"Written: {tsv_path} ({len(rows)} systems, {n_total} test sets)",
+            file=sys.stderr,
+        )
+
+
+if __name__ == "__main__":
+    main()
