@@ -1,5 +1,4 @@
 {
-  "team1": "Example University, City, Country",
-  "team2": "Test Institute, City, Country",
-  "team3": "Evaluation Lab, City, Country"
+  "same": "Example University, City, Country",
+  "random": "Test Institute, City, Country"
 }

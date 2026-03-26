@@ -134,7 +134,7 @@ def main() -> None:
         key = (meta["dataset"], meta["split"], meta["language"])
         groups[key].append({"system": stem, **metrics})
 
-        system_key = (meta["teamname"], meta["run"])
+        system_key = (meta["teamname"], meta["version"], meta["run"])
         dataset_key = (meta["dataset"], meta["language"])
         if not competition_cells or dataset_key in competition_cells:
             overall[meta["split"]][system_key][dataset_key] = metrics
@@ -203,7 +203,7 @@ def main() -> None:
     for split, systems in sorted(overall.items()):
         n_total = len(all_test_sets[split])
         rows = []
-        for (teamname, run), dataset_metrics in systems.items():
+        for (teamname, version, run), dataset_metrics in systems.items():
             entries = [
                 {
                     "cmi": m["cmer_micro"],
@@ -220,7 +220,7 @@ def main() -> None:
             ]
             rows.append(
                 {
-                    "system": f"{teamname}_{run}",
+                    "system": f"{teamname}_hipe-ocrepair-bench_{version}_{run}",
                     "overall_cmer": weighted_mean((e["cmi"], e["w"]) for e in entries),
                     "overall_cmer_lo": weighted_mean(
                         (e["cmi_lo"], e["w"]) for e in entries
