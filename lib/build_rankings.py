@@ -2,19 +2,20 @@
 """Build TSV ranking files from per-run score JSON files.
 
 Reads results/per-run/*.json, groups by (dataset, split, language),
-sorts by cmer_macro ascending (lower is better), and writes one TSV
+sorts by cmer_micro ascending (lower is better), and writes one TSV
 per group to results/system-rankings/.
 
-Also produces an overall weighted ranking per split:
+Also produces per-split weighted rankings:
   ranking-overall-<split>-weighted.tsv
+  ranking-language-<lang>-<split>-weighted.tsv
 
-Weighting scheme for the overall score:
+Weighting scheme (loaded from --competition-config):
   - Non-DTA test sets: weight = 1
   - DTA test sets (dta19-l0, dta19-l1, dta19-l2): weight = 1/3 each
     so that the three DTA parts together contribute as one dataset.
 
-Overall primary metric:  weighted mean of per-test-set cmer_micro
-Overall secondary metric: weighted mean of per-test-set pref_score_cmer_macro
+Primary metric:   weighted mean of per-test-set cmer_micro
+Secondary metric: weighted mean of per-test-set pref_score_cmer_macro
 """
 
 import argparse
@@ -114,9 +115,13 @@ def main() -> None:
 
     # Per-test-set groups: (dataset, split, language) -> list of row dicts
     groups: dict[tuple, list] = defaultdict(list)
-    # Overall ranking data: split -> {(teamname, run) -> {(dataset, language) -> metrics}}
-    # Only competition cells are tracked for overall (if config provided).
+    # Overall ranking: split -> {system_key -> {(dataset, language) -> metrics}}
+    # Only competition cells are tracked (if config provided).
     overall: dict[str, dict] = defaultdict(lambda: defaultdict(dict))
+    # Per-language ranking: split -> language -> {system_key -> {(dataset, language) -> metrics}}
+    per_language: dict[str, dict] = defaultdict(
+        lambda: defaultdict(lambda: defaultdict(dict))
+    )
 
     for json_path in json_files:
         stem = json_path.stem
@@ -138,6 +143,9 @@ def main() -> None:
         dataset_key = (meta["dataset"], meta["language"])
         if not competition_cells or dataset_key in competition_cells:
             overall[meta["split"]][system_key][dataset_key] = metrics
+            per_language[meta["split"]][meta["language"]][system_key][
+                dataset_key
+            ] = metrics
 
     # --- Per-test-set TSVs ---
     FIELDNAMES = [
@@ -183,9 +191,11 @@ def main() -> None:
     # --- Overall weighted ranking per split ---
     # Determine competition-cell (dataset, language) keys per split for n_total.
     all_test_sets: dict[str, set] = defaultdict(set)
+    all_test_sets_by_language: dict[str, dict] = defaultdict(lambda: defaultdict(set))
     for dataset, split, language in groups:
         if not competition_cells or (dataset, language) in competition_cells:
             all_test_sets[split].add((dataset, language))
+            all_test_sets_by_language[split][language].add((dataset, language))
 
     OVERALL_FIELDNAMES = [
         "rank",
@@ -266,6 +276,103 @@ def main() -> None:
             f"Written: {tsv_path} ({len(rows)} systems, {n_total} test sets)",
             file=sys.stderr,
         )
+
+    # --- Per-language weighted ranking per split ---
+    LANG_FIELDNAMES = [
+        "rank",
+        "system",
+        "language",
+        "language_cmer",
+        "language_cmer_lo",
+        "language_cmer_hi",
+        "language_pref",
+        "language_pref_lo",
+        "language_pref_hi",
+        "n_test_sets",
+        "n_total_test_sets",
+    ]
+
+    for split, lang_systems in sorted(per_language.items()):
+        for language, systems in sorted(lang_systems.items()):
+            n_total = len(all_test_sets_by_language[split][language])
+            rows = []
+            for (teamname, version, run), dataset_metrics in systems.items():
+                entries = [
+                    {
+                        "cmi": m["cmer_micro"],
+                        "cmi_lo": m["cmer_micro_lo"],
+                        "cmi_hi": m["cmer_micro_hi"],
+                        "pref": m["pref_score_cmer_macro"],
+                        "pref_lo": m["pref_score_cmer_macro_lo"],
+                        "pref_hi": m["pref_score_cmer_macro_hi"],
+                        "w": (
+                            competition_cells.get((d, l), 1.0)
+                            if competition_cells
+                            else 1.0
+                        ),
+                    }
+                    for (d, l), m in sorted(dataset_metrics.items())
+                ]
+                rows.append(
+                    {
+                        "system": f"{teamname}_hipe-ocrepair-bench_{version}_{run}",
+                        "language": language,
+                        "language_cmer": weighted_mean(
+                            (e["cmi"], e["w"]) for e in entries
+                        ),
+                        "language_cmer_lo": weighted_mean(
+                            (e["cmi_lo"], e["w"]) for e in entries
+                        ),
+                        "language_cmer_hi": weighted_mean(
+                            (e["cmi_hi"], e["w"]) for e in entries
+                        ),
+                        "language_pref": weighted_mean(
+                            (e["pref"], e["w"]) for e in entries
+                        ),
+                        "language_pref_lo": weighted_mean(
+                            (e["pref_lo"], e["w"]) for e in entries
+                        ),
+                        "language_pref_hi": weighted_mean(
+                            (e["pref_hi"], e["w"]) for e in entries
+                        ),
+                        "n_test_sets": len(dataset_metrics),
+                        "n_total_test_sets": n_total,
+                    }
+                )
+
+            rows.sort(
+                key=lambda r: (
+                    (
+                        r["language_cmer"]
+                        if r["language_cmer"] is not None
+                        else float("inf")
+                    ),
+                    -(
+                        r["language_pref"]
+                        if r["language_pref"] is not None
+                        else float("-inf")
+                    ),
+                )
+            )
+
+            tsv_name = f"ranking-language-{language}-{split}-weighted.tsv"
+            tsv_path = output_dir / tsv_name
+
+            with open(tsv_path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(
+                    f,
+                    fieldnames=LANG_FIELDNAMES,
+                    delimiter="\t",
+                    extrasaction="ignore",
+                )
+                writer.writeheader()
+                for rank, row in enumerate(rows, 1):
+                    writer.writerow({"rank": rank, **row})
+
+            print(
+                f"Written: {tsv_path} ({len(rows)} systems, {n_total} test sets)",
+                file=sys.stderr,
+            )
 
 
 if __name__ == "__main__":

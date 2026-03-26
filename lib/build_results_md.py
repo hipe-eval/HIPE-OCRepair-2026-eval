@@ -68,6 +68,17 @@ def parse_overall_tsv_filename(name: str) -> dict | None:
     return {"split": m.group("split")}
 
 
+def parse_language_tsv_filename(name: str) -> dict | None:
+    """Parse ranking-language-<lang>-<split>-weighted.tsv."""
+    m = re.match(
+        r"^ranking-language-(?P<language>[^-]+)-(?P<split>[^-]+)-weighted$",
+        Path(name).stem,
+    )
+    if not m:
+        return None
+    return {"language": m.group("language"), "split": m.group("split")}
+
+
 def build_team_key_table(teams: dict) -> list[str]:
     lines = [
         "## Team key\n",
@@ -133,6 +144,31 @@ def build_overall_ranking_table(rows: list[dict]) -> list[str]:
     return lines
 
 
+def build_language_ranking_table(rows: list[dict]) -> list[str]:
+    header = (
+        "| Rank | System | Language cMER ↓ | 95% CI\u00b9 | Language Pref. ↑ |"
+        " 95% CI\u00b9 | Test sets |"
+    )
+    sep = "|------|--------|-----------------|---------|------------------|---------|----------|"
+    lines = [header, sep]
+    for row in rows:
+        rank = row.get("rank", "")
+        system = row.get("system", "")
+        cmer = fmt(row.get("language_cmer"))
+        ci = f"[{fmt(row.get('language_cmer_lo'))}, {fmt(row.get('language_cmer_hi'))}]"
+        pref = fmt(row.get("language_pref"))
+        pref_ci = (
+            f"[{fmt(row.get('language_pref_lo'))}, {fmt(row.get('language_pref_hi'))}]"
+        )
+        n = row.get("n_test_sets", "")
+        n_total = row.get("n_total_test_sets", "")
+        lines.append(
+            f"| {rank} | {system} | {cmer} | {ci} | {pref} | {pref_ci} |"
+            f" {n}/{n_total} |"
+        )
+    return lines
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build Markdown results document from TSV ranking files."
@@ -168,13 +204,18 @@ def main() -> None:
         print(f"[ERROR] No ranking TSV files found in {rankings_dir}")
         return
 
-    # Separate overall-weighted TSVs from per-test-set TSVs
+    # Separate overall-weighted, language-weighted, and per-test-set TSVs
     overall_tsvs: list[tuple] = []  # (tsv_path, meta)
+    language_tsvs: list[tuple] = []  # (tsv_path, meta)
     dataset_groups: dict[str, list] = defaultdict(list)
     for tsv_path in all_tsv_files:
         overall_meta = parse_overall_tsv_filename(tsv_path.name)
         if overall_meta is not None:
             overall_tsvs.append((tsv_path, overall_meta))
+            continue
+        lang_meta = parse_language_tsv_filename(tsv_path.name)
+        if lang_meta is not None:
+            language_tsvs.append((tsv_path, lang_meta))
             continue
         meta = parse_tsv_filename(tsv_path.name)
         if meta is None:
@@ -235,6 +276,37 @@ def main() -> None:
                 rows = list(csv.DictReader(f, delimiter="\t"))
             if rows:
                 lines.extend(build_overall_ranking_table(rows))
+                lines.append("")
+                tsv_rel = os.path.relpath(tsv_path, output_path.parent)
+                lines.append(f"See [{tsv_path.name}]({tsv_rel}) for full details.\n")
+            else:
+                lines.append("_No results available._\n")
+
+    # --- Per-language weighted rankings ---
+    if language_tsvs:
+        lines.append("## Per-language rankings\n")
+        lines.append(
+            "Per-language rankings are computed in the same way as the overall"
+            " ranking, but restricted to the official test sets of the respective"
+            " language."
+        )
+        lines.append("")
+        lines.append(
+            "\u00b9\u00a0CIs for language scores are approximate (weighted average of"
+            " per-test-set bootstrap CIs)."
+        )
+        lines.append("")
+        for tsv_path, meta in sorted(
+            language_tsvs, key=lambda x: (x[1]["split"], x[1]["language"])
+        ):
+            split = meta["split"]
+            lang = meta["language"]
+            lang_name = LANGUAGE_NAMES.get(lang, lang.upper())
+            lines.append(f"### Language: {lang} ({lang_name}) — {split} split\n")
+            with open(tsv_path, encoding="utf-8") as f:
+                rows = list(csv.DictReader(f, delimiter="\t"))
+            if rows:
+                lines.extend(build_language_ranking_table(rows))
                 lines.append("")
                 tsv_rel = os.path.relpath(tsv_path, output_path.parent)
                 lines.append(f"See [{tsv_path.name}]({tsv_rel}) for full details.\n")
