@@ -253,14 +253,20 @@ The weights are chosen so that the language-level contributions remain balanced:
 
 Thus, the three DTA test sets together contribute the same total weight as one other test set. This means that, for each language, the combined contribution is effectively based on **two equally weighted dataset groups**.
 
-| Dataset             | Lang | Weight |
+| Testsets            | Lang | Weight |
 | ------------------- | ---- | ------ |
 | `dta19-l0`          | de   | 1/3    |
 | `dta19-l1`          | de   | 1/3    |
 | `dta19-l2`          | de   | 1/3    |
 | `impresso-snippets` | de   | 1      |
+
+| Testsets            | Lang | Weight |
+| ------------------- | ---- | ------ |
 | `icdar2017`         | en   | 1      |
 | `impresso-snippets` | en   | 1      |
+
+| Testsets            | Lang | Weight |
+| ------------------- | ---- | ------ |
 | `icdar2017`         | fr   | 1      |
 | `impresso-snippets` | fr   | 1      |
 
@@ -270,6 +276,23 @@ Thus, the three DTA test sets together contribute the same total weight as one o
 
 The evaluation results are available in [HIPE_OCRepair_2026_evaluation_results.md](HIPE_OCRepair_2026_evaluation_results.md) and on the [HIPE-OCRepair-2026 website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results).
 
-Per-test-set rankings are sorted by `cmer_micro` (lower is better), with
-`pref_score_cmer_macro` as secondary sort key (higher is better). The official overall
-ranking is based on the weighted mean of per-test-set `cmer_micro`.
+The **official competition ranking** is computed separately from the scorer outputs as a
+**weighted mean of `cmer_micro`** across the official test sets. The secondary criterion
+is the corresponding **weighted mean of `pref_score_cmer_macro`**.
+The scorer reports simple averages across datasets. The official competition ranking
+applies a separate weighted average across the official test sets, so that the three
+German DTA splits do not collectively outweigh the other test sets.
+
+#### Per-language rankings
+
+In addition to the overall competition ranking, we report **per-language rankings** of submitted runs.
+
+For a given language, the ranking is computed as a **weighted mean of per-test-set `cmer_micro`** over the official test sets for that language. The secondary criterion is the corresponding **weighted mean of `pref_score_cmer_macro`**.
+
+This means:
+
+- for **English**, the language score is the mean over `icdar2017` and `impresso-snippets`
+- for **French**, the language score is the mean over `icdar2017` and `impresso-snippets`
+- for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l1`, and `dta19-l2` with weight `1/3` each
+
+As in the overall ranking, these language-level rankings are based on weighted combinations of **per-test-set scores**. They should not be confused with the scorer’s internal notions of **micro** and **macro**, which refer to aggregation over transcription units within a dataset.
