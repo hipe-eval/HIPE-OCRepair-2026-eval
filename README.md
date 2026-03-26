@@ -2,21 +2,21 @@
 
 This repository contains the official evaluation toolkit for the HIPE-OCRepair 2026 competition, including:
 
-- the [HIPE-OCRepair-scorer](https://github.com/hipe-eval/HIPE-OCRepair-scorer) (as a Python package) and the evaluation scripts used to score system outputs;
-- the test data used for the evaluation;
-- the system submissions;
-- the evaluation results;
-- a Makefile to run the whole evaluation process.
+- the test data used for the evaluation
+- the system submissions
+- the [HIPE-OCRepair-scorer](https://github.com/hipe-eval/HIPE-OCRepair-scorer) (as a Python package) and the evaluation scripts used to score system outputs
+- the evaluation results
+- a Makefile to run the whole evaluation process
 
 The repository is designed to ensure transparent and reproducible evaluation of all submitted systems.
 
 **For more information, also have a look at:**
 
-- :checkered_flag: HIPE-OCRepair-2026 results in [HIPE_OCRepair_2026_evaluation_results.md] and on the [website](<[https://hipe-eval.github.io/HIPE-2022/results](https://hipe-eval.github.io/HIPE-OCRepair-2026/results)>).
-- :computer: [HIPE-OCRepair 2026](https://hipe-eval.github.io/HIPE-OCRepair-2026/);
-- :open_file_folder: HIPE-OCRepair-2026 [data releases](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/releases);
-- :low_brightness: HIPE-OCRepair-2026 [baseline](<[https://github.com/hipe-eval/HIPE-2022-baseline](https://github.com/hipe-eval/HIPE-OCRepair-2026-baseline)>);
-- :books: HIPE evaluation campaigns [zenodo community](https://zenodo.org/communities/hipe-eval/?page=1&size=20).
+- :books: [ HIPE evaluation campaigns](https://hipe-eval.github.io)
+- :link: [HIPE-OCRepair 2026 Website](https://hipe-eval.github.io/HIPE-OCRepair-2026/)
+- :checkered_flag: HIPE-OCRepair-2026 results on the [website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results)
+- :open_file_folder: HIPE-OCRepair-2026 [data set releases](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/releases)
+- :low_brightness: HIPE-OCRepair-2026 [baseline](https://github.com/hipe-eval/HIPE-OCRepair-2026-baseline)
 
 ### Task
 
