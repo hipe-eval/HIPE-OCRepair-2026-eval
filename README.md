@@ -20,9 +20,12 @@ The repository is designed to ensure transparent and reproducible evaluation of 
 
 ### Task
 
-The shared task focuses on OCR post-correction for historical documents. Participants develop systems that automatically correct OCR errors in historical text.
+The shared task focuses on OCR post-correction for historical documents. Participants
+develop systems that automatically correct OCR errors in historical text paragraphs. The
+correction does not happen on a line-by-line basis but on the whole paragraph, allowing for more global corrections.
 
-System outputs are evaluated against gold-standard reference data using the official evaluation scripts provided in this repository.
+System outputs are evaluated against gold-standard reference data using the official
+evaluation scorer that includes some normalization to the reference and hypothesis texts.
 
 ### Repository structure
 
@@ -65,7 +68,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` installs the [HIPE-OCRepair-scorer](https://github.com/hipe-eval/HIPE-OCRepair-scorer) directly from GitHub. To update it to the latest version:
+The `requirements.txt` installs the
+[HIPE-OCRepair-scorer](https://github.com/hipe-eval/HIPE-OCRepair-scorer) during the
+development phase of this repository directly from GitHub. To update it to the latest version:
 
 ```bash
 pip install --upgrade -r requirements.txt
@@ -78,7 +83,7 @@ make eval-full          # Score submissions, build rankings and results MD
 make eval-full-refresh  # Remove all derived files and re-run from scratch
 ```
 
-Run `make` (or `make help`) to see all available targets.
+Run `make` to see all available targets.
 
 ### Submission format
 
@@ -88,7 +93,8 @@ Submission files are JSONL files (one JSON object per line). Each record must co
 {
   "document_metadata": {
     "document_id": "unique-id",
-    "primary_dataset_name": "impresso-snippets"
+    "primary_dataset_name": "One of the official datasets (e.g., icdar2017, dta19-l0, etc.)",
+    "language": "Language code (e.g., en, de, fr)"
   },
   "ground_truth": {
     "transcription_unit": "Reference transcription text"
@@ -103,6 +109,7 @@ Submission files are JSONL files (one JSON object per line). Each record must co
 ```
 
 **File naming convention:**
+The submitted filename must follow the pattern:
 
 ```
 <teamname>_hipe-ocrepair-bench_<version>_<dataset>_<split>_<language>_run<N>.jsonl
@@ -114,7 +121,7 @@ Submission files are JSONL files (one JSON object per line). Each record must co
 
 Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1.jsonl`
 
-Place submission files in `evaluation/system-responses/submitted/`.
+All submission files will be placed in `evaluation/system-responses/submitted/`.
 
 ### Dry-run with dummy data
 
@@ -145,32 +152,117 @@ make eval-full-dummy REFERENCE_DIR_DUMMY=path/to/your/references
 **Two baseline strategies** are generated automatically:
 
 - `same_*_run1.jsonl` — identity baseline (copies OCR input unchanged; expected cMER ≈ raw OCR error rate)
-- `random_*_run1.jsonl` — word-shuffle baseline (random word order; expected cMER ≈ 1)
+- `random_*_run1.jsonl` — word-shuffle baseline (The exchange of two random words in each paragraph; expected cMER much higher than the identity baseline)
 
-These sanity-check that the scorer is working: `same` should score better than `random` on every cell.
+These baselines check that the scorer is working: `same` should score better than `random` on every cell.
 
 ### Metrics and rankings
 
-All metrics are based on **Match Error Rate (MER)**:
+Primary metrics are based on **character-level Match Error Rate (cMER)**:
 
 $$\text{MER} = \frac{S + D + I}{H + S + D + I}$$
 
-where H = hits, S = substitutions, D = deletions, I = insertions. Unlike standard CER/WER, MER is capped in [0, 1]. Evaluation is **case-insensitive** and **punctuation-insensitive** but sensitive to accented characters.
+where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions. Unlike standard CER/WER, MER is bounded in \([0,1]\), because insertions are included in the denominator.
 
-The **primary metric** is `cmer_micro` — micro-averaged character MER within each test cell (longer documents contribute more). Rankings are sorted by `cmer_micro` ascending (lower is better). The **secondary metric** is `pref_score_cmer_macro` (higher is better), which captures how consistently a system improves over the raw OCR input, unaffected by document length.
+Before scoring, texts are normalized as follows:
 
-The **overall ranking** is a weighted mean of per-cell `cmer_micro` across the 8 official test cells. Design weights ensure equal influence per conceptual dataset unit: each non-DTA cell has weight 1; each of the three DTA cells (`dta19-l0`, `dta19-l1`, `dta19-l2`) has weight 1/3 so that the three together count as one unit.
+- lowercased
+- punctuation and other non-word characters replaced by spaces
+- underscores replaced by spaces
+- repeated whitespace collapsed
 
-| Cell | Dataset             | Lang | Weight |
-| ---- | ------------------- | ---- | ------ |
-| 1    | `icdar2017`         | en   | 1      |
-| 2    | `icdar2017`         | fr   | 1      |
-| 3    | `dta19-l0`          | de   | 1/3    |
-| 4    | `dta19-l1`          | de   | 1/3    |
-| 5    | `dta19-l2`          | de   | 1/3    |
-| 6    | `impresso-snippets` | de   | 1      |
-| 7    | `impresso-snippets` | en   | 1      |
-| 8    | `impresso-snippets` | fr   | 1      |
+Evaluation is therefore **case-insensitive** and **punctuation-insensitive**, but still sensitive to accented characters (for example, `é` and `e` remain different).
+
+A cMER of 0.05 means that the hypothesis and reference differ by 5% at the character level.
+
+#### Aggregation levels
+
+Each test dataset consists of a set of **transcription units**. All metrics are first computed at the level of individual transcription units and then aggregated.
+
+For each dataset, the scorer reports:
+
+- **`cmer_micro`**: character-level MER obtained by pooling alignment counts across all transcription units in the dataset and computing MER once from the pooled totals
+- **`cmer_macro`**: arithmetic mean of the transcription-unit-level cMER scores within the dataset
+- **`wmer_micro`** and **`wmer_macro`**: analogous word-level metrics
+
+In other words:
+
+- **micro** aggregation gives more weight to longer transcription units
+- **macro** aggregation gives equal weight to each transcription unit
+
+#### Preference-based secondary metrics
+
+In addition to MER, the scorer reports metrics that compare a system output to the original OCR hypothesis on each transcription unit:
+
+- **`pref_score_cmer_macro`**: mean preference score based on cMER
+- **`pref_score_wmer_macro`**: mean preference score based on wMER
+
+For each transcription unit, the preference score is:
+
+- `1` if the system is better than the raw OCR
+- `0` if both are equal
+- `-1` if the system is worse than the raw OCR
+
+These scores are then averaged across transcription units, so they are **macro** metrics.
+
+The scorer also reports:
+
+- **`pcis_cmer_macro`**
+- **`pcis_wmer_macro`**
+
+These are macro-averaged relative improvement scores computed per transcription unit against the raw OCR baseline.
+
+#### Per-dataset scores and overall averages
+
+Scoring is performed **per dataset** (using `primary_dataset_name` as the grouping key). In the output of the scorer, these dataset-level results are stored under `fold_scores`.
+
+The overall results in `averaged_scores` are then computed as the **unweighted mean across datasets** of the corresponding dataset-level scores.
+
+This means that:
+
+- `fold_scores[dataset]["cmer_micro"]` is the **micro cMER within that dataset**
+- `averaged_scores["cmer_micro"]` is the **mean of the dataset-level micro cMER values**
+
+So the overall average is **not** a single global micro-average over all transcription units from all datasets combined. Instead, it is an equal-weight average over datasets.
+
+#### Primary and secondary ranking criteria
+
+The **primary ranking metric** is **`cmer_micro`**:
+
+- lower is better
+- computed separately for each dataset
+- longer transcription units contribute more within a dataset
+
+The **secondary ranking metric** is **`pref_score_cmer_macro`**:
+
+- higher is better
+- measures how consistently a system improves over the raw OCR input across transcription units
+- each transcription unit contributes equally
+
+#### Official competition ranking across test sets
+
+The scorer outputs per-dataset scores, including `cmer_micro` for each dataset.  
+The **official competition ranking** is computed separately from these scorer outputs as a **weighted mean of per-test-set `cmer_micro`** across the 8 official test sets.
+
+The weighting scheme is defined by the competition design and is **not** the same as the scorer’s internal `averaged_scores`, which uses an unweighted mean across datasets.
+
+The weights are chosen so that the language-level contributions remain balanced:
+
+- for **English** and **French**, each language score is based on **two test sets**, each with weight **1**
+- for **German**, the score is based on **four test sets**: `impresso-snippets` with weight **1**, and the three DTA test sets (`dta19-l0`, `dta19-l1`, `dta19-l2`) with weight **1/3** each
+
+Thus, the three DTA test sets together contribute the same total weight as one other test set. This means that, for each language, the combined contribution is effectively based on **two equally weighted dataset groups**.
+
+| Dataset             | Lang | Weight |
+| ------------------- | ---- | ------ |
+| `dta19-l0`          | de   | 1/3    |
+| `dta19-l1`          | de   | 1/3    |
+| `dta19-l2`          | de   | 1/3    |
+| `impresso-snippets` | de   | 1      |
+| `icdar2017`         | en   | 1      |
+| `impresso-snippets` | en   | 1      |
+| `icdar2017`         | fr   | 1      |
+| `impresso-snippets` | fr   | 1      |
 
 `impresso-nzz` and `overproof-combined` have no competition test sets and do not contribute to the official rankings.
 
@@ -178,4 +270,6 @@ The **overall ranking** is a weighted mean of per-cell `cmer_micro` across the 8
 
 The evaluation results are available in [HIPE_OCRepair_2026_evaluation_results.md](HIPE_OCRepair_2026_evaluation_results.md) and on the [HIPE-OCRepair-2026 website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results).
 
-Rankings are sorted by `cmer_micro` (character MER, micro-averaged; lower is better). The secondary sort key is `pref_score_cmer_macro` (higher is better).
+Per-test-set rankings are sorted by `cmer_micro` (lower is better), with
+`pref_score_cmer_macro` as secondary sort key (higher is better). The official overall
+ranking is based on the weighted mean of per-test-set `cmer_micro`.
