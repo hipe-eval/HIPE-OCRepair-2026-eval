@@ -85,9 +85,12 @@ def main() -> None:
     ref_path = ref_dir / f"{ref_stem}.jsonl"
 
     if not ref_path.is_file():
-        print(f"[ERROR] Reference not found: {ref_path}", file=sys.stderr)
-        print(f"        (derived from: {hyp_path.name})", file=sys.stderr)
-        sys.exit(1)
+        print(
+            f"[WARNING] Reference not found: {ref_path} — skipping {hyp_path.name}",
+            file=sys.stderr,
+        )
+        print(f"          (derived stem: {ref_stem})", file=sys.stderr)
+        sys.exit(0)
 
     print(f"Scoring: {hyp_path.name} <-> {ref_path.name}", file=sys.stderr)
 

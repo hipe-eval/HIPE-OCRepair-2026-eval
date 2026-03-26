@@ -36,14 +36,6 @@ HYPO_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-# DTA noise-level datasets each get weight 1/3 in the overall ranking.
-DTA_WEIGHT_PATTERN = re.compile(r"^dta19-l\d+$", re.IGNORECASE)
-
-
-def dataset_weight(dataset: str) -> float:
-    """Return the macro-average design weight for a dataset."""
-    return 1 / 3 if DTA_WEIGHT_PATTERN.match(dataset) else 1.0
-
 
 def parse_hypothesis_stem(stem: str) -> dict | None:
     m = HYPO_PATTERN.match(stem)
@@ -95,11 +87,25 @@ def main() -> None:
     parser.add_argument(
         "--output-dir", required=True, help="Directory to write ranking TSV files."
     )
+    parser.add_argument(
+        "--competition-config",
+        default=None,
+        help=(
+            "JSON file listing competition cells with weights. If omitted, all datasets"
+            " are included."
+        ),
+    )
     args = parser.parse_args()
 
     per_run_dir = Path(args.per_run_dir)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    competition_cells: dict[tuple[str, str], float] = {}
+    if args.competition_config:
+        with open(args.competition_config, encoding="utf-8") as f:
+            cfg = json.load(f)
+        competition_cells = {(c["dataset"], c["language"]): c["weight"] for c in cfg}
 
     json_files = sorted(per_run_dir.glob("*.json"))
     if not json_files:
@@ -109,6 +115,7 @@ def main() -> None:
     # Per-test-set groups: (dataset, split, language) -> list of row dicts
     groups: dict[tuple, list] = defaultdict(list)
     # Overall ranking data: split -> {(teamname, run) -> {(dataset, language) -> metrics}}
+    # Only competition cells are tracked for overall (if config provided).
     overall: dict[str, dict] = defaultdict(lambda: defaultdict(dict))
 
     for json_path in json_files:
@@ -129,26 +136,29 @@ def main() -> None:
 
         system_key = (meta["teamname"], meta["run"])
         dataset_key = (meta["dataset"], meta["language"])
-        overall[meta["split"]][system_key][dataset_key] = metrics
+        if not competition_cells or dataset_key in competition_cells:
+            overall[meta["split"]][system_key][dataset_key] = metrics
 
     # --- Per-test-set TSVs ---
     FIELDNAMES = [
         "rank",
         "system",
-        "cmer_macro",
-        "cmer_macro_lo",
-        "cmer_macro_hi",
+        "cmer_micro",
+        "cmer_micro_lo",
+        "cmer_micro_hi",
         "pref_score_cmer_macro",
         "pref_score_cmer_macro_lo",
         "pref_score_cmer_macro_hi",
-        "cmer_micro",
+        "cmer_macro",
+        "cmer_macro_lo",
+        "cmer_macro_hi",
         "wmer_macro",
     ]
 
     for (dataset, split, language), rows in sorted(groups.items()):
         rows.sort(
             key=lambda r: (
-                r["cmer_macro"] if r["cmer_macro"] is not None else float("inf"),
+                r["cmer_micro"] if r["cmer_micro"] is not None else float("inf"),
                 -(
                     r["pref_score_cmer_macro"]
                     if r["pref_score_cmer_macro"] is not None
@@ -157,7 +167,7 @@ def main() -> None:
             )
         )
 
-        tsv_name = f"ranking-{dataset}-{split}-{language}-cmer-macro.tsv"
+        tsv_name = f"ranking-{dataset}-{split}-{language}-cmer-micro.tsv"
         tsv_path = output_dir / tsv_name
 
         with open(tsv_path, "w", newline="", encoding="utf-8") as f:
@@ -171,10 +181,11 @@ def main() -> None:
         print(f"Written: {tsv_path} ({len(rows)} systems)", file=sys.stderr)
 
     # --- Overall weighted ranking per split ---
-    # Determine full set of (dataset, language) keys per split for completeness tracking.
+    # Determine competition-cell (dataset, language) keys per split for n_total.
     all_test_sets: dict[str, set] = defaultdict(set)
     for dataset, split, language in groups:
-        all_test_sets[split].add((dataset, language))
+        if not competition_cells or (dataset, language) in competition_cells:
+            all_test_sets[split].add((dataset, language))
 
     OVERALL_FIELDNAMES = [
         "rank",
@@ -201,9 +212,11 @@ def main() -> None:
                     "pref": m["pref_score_cmer_macro"],
                     "pref_lo": m["pref_score_cmer_macro_lo"],
                     "pref_hi": m["pref_score_cmer_macro_hi"],
-                    "w": dataset_weight(d),
+                    "w": (
+                        competition_cells.get((d, l), 1.0) if competition_cells else 1.0
+                    ),
                 }
-                for (d, _l), m in sorted(dataset_metrics.items())
+                for (d, l), m in sorted(dataset_metrics.items())
             ]
             rows.append(
                 {

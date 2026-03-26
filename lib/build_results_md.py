@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Build a HIPE-2022-style Markdown results document from TSV ranking files.
 
-Reads results/system-rankings/ranking-*-cmer-macro.tsv and produces
+Reads results/system-rankings/ranking-*-cmer-micro.tsv and produces
 HIPE_OCRepair_2026_evaluation_results.md.
 
-TSV filename convention: ranking-<dataset>-<split>-<language>-cmer-macro.tsv
+TSV filename convention: ranking-<dataset>-<split>-<language>-cmer-micro.tsv
 """
 
 import argparse
@@ -44,12 +44,12 @@ def fmt(val, precision: int = 4) -> str:
 
 
 def parse_tsv_filename(name: str) -> dict | None:
-    """Parse ranking-<dataset>-<split>-<language>-cmer-macro.tsv.
+    """Parse ranking-<dataset>-<split>-<language>-cmer-micro.tsv.
 
     Handles datasets with hyphens (e.g. impresso-snippets) by splitting
     from the right: last two hyphen-separated tokens are language and split.
     """
-    m = re.match(r"^ranking-(.+)-cmer-macro$", Path(name).stem)
+    m = re.match(r"^ranking-(.+)-cmer-micro$", Path(name).stem)
     if not m:
         return None
     inner = m.group(1)
@@ -81,29 +81,29 @@ def build_team_key_table(teams: dict) -> list[str]:
 
 def build_ranking_table(rows: list[dict]) -> list[str]:
     header = (
-        "| Rank | System | cMER ↓ | 95% CI | Pref. score ↑ | 95% CI |"
-        " cMER micro | wMER macro |"
+        "| Rank | System | cMER micro ↓ | 95% CI | Pref. score ↑ | 95% CI |"
+        " cMER macro | wMER macro |"
     )
     sep = (
-        "|------|--------|--------|--------|---------------|--------|"
+        "|------|--------|--------------|--------|---------------|--------|"
         "------------|------------|"
     )
     lines = [header, sep]
     for row in rows:
         rank = row.get("rank", "")
         system = row.get("system", "")
-        cmer = fmt(row.get("cmer_macro"))
-        ci = f"[{fmt(row.get('cmer_macro_lo'))}, {fmt(row.get('cmer_macro_hi'))}]"
+        cmer_micro = fmt(row.get("cmer_micro"))
+        ci = f"[{fmt(row.get('cmer_micro_lo'))}, {fmt(row.get('cmer_micro_hi'))}]"
         pref = fmt(row.get("pref_score_cmer_macro"))
         pref_ci = (
             f"[{fmt(row.get('pref_score_cmer_macro_lo'))},"
             f" {fmt(row.get('pref_score_cmer_macro_hi'))}]"
         )
-        cmer_micro = fmt(row.get("cmer_micro"))
+        cmer_macro = fmt(row.get("cmer_macro"))
         wmer_macro = fmt(row.get("wmer_macro"))
         lines.append(
-            f"| {rank} | {system} | {cmer} | {ci} | {pref} | {pref_ci}"
-            f" | {cmer_micro} | {wmer_macro} |"
+            f"| {rank} | {system} | {cmer_micro} | {ci} | {pref} | {pref_ci}"
+            f" | {cmer_macro} | {wmer_macro} |"
         )
     return lines
 
@@ -192,7 +192,7 @@ def main() -> None:
         "`<teamname>_hipe-ocrepair-bench_<version>_<dataset>_<split>_<language>_run<N>`",
         "",
         (
-            "**Primary metric**: overall macro-cMER — weighted mean of per-test-set"
+            "**Primary metric**: overall micro-cMER — weighted mean of per-test-set"
             " cMER micro (`cmer_micro`) — **lower is better**  "
         ),
         (
@@ -253,8 +253,7 @@ def main() -> None:
             lang_name = LANGUAGE_NAMES.get(lang, lang.upper())
             lines.append(f"#### Language: {lang} ({lang_name}) — {split} split\n")
             lines.append(
-                "cMER macro-averaged [`cmer_macro`] — ordered ascending (lower is"
-                " better)\n"
+                "cMER micro [`cmer_micro`] — ordered ascending (lower is better)\n"
             )
 
             with open(tsv_path, encoding="utf-8") as f:
