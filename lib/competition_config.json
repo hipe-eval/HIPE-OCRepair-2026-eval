@@ -1,0 +1,10 @@
+[
+  { "dataset": "icdar2017", "language": "en", "weight": 1.0 },
+  { "dataset": "icdar2017", "language": "fr", "weight": 1.0 },
+  { "dataset": "dta19-l0", "language": "de", "weight": 0.3333333333333333 },
+  { "dataset": "dta19-l1", "language": "de", "weight": 0.3333333333333333 },
+  { "dataset": "dta19-l2", "language": "de", "weight": 0.3333333333333333 },
+  { "dataset": "impresso-snippets", "language": "de", "weight": 1.0 },
+  { "dataset": "impresso-snippets", "language": "en", "weight": 1.0 },
+  { "dataset": "impresso-snippets", "language": "fr", "weight": 1.0 }
+]
