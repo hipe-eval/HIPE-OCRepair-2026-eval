@@ -212,7 +212,6 @@ The evaluation reports show the following metrics:
 - **`wmer_micro`**: micro-averaged word-level Match Error Rate
 - **`wmer_macro`**: macro-averaged word-level Match Error Rate
 - **`pref_cmer_macro`**: macro-averaged preference score based on cMER
-- **`pref_wmer_macro`**: macro-averaged preference score based on wMER
 
 At the transcription-unit level, MER is defined as:
 
@@ -258,16 +257,21 @@ The preference score for one transcription unit _i_ is defined as follows:
 The reported preference metrics are macro averages over transcription units:
 
 ```math
-\mathrm{pref\_cmer\_macro} =
-\frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{cmer}}(i)
+\mathrm{pref\_cMER\_macro} =
+\frac{1}{N} \sum_{i=1}^{N} \mathrm{pref\_cMER}(i)
 ```
 
-```math
-\mathrm{pref\_wmer\_macro} =
-\frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{wmer}}(i)
-```
+#### Confidence intervals
 
-```
+The report tables include **95% bootstrap confidence intervals** for **`cmer_micro`** and **`pref_cmer_macro`**. These intervals are based on **10,000 bootstrap resamples** of the transcription units.
+
+For **micro-averaged** metrics such as `cmer_micro`, the scorer resamples transcription units, sums their alignment counts, and recomputes the score from the pooled totals. For **macro-averaged** metrics such as `pref_cmer_macro`, it resamples the transcription units, recomputes the per-unit scores, and then takes their mean.
+
+The reported lower and upper bounds correspond to the **2.5th** and **97.5th
+percentiles** of the bootstrap distribution. In `fold_scores`, each metric is stored as
+`(score, low_ci, high_ci)`. In `averaged_scores`, the central value is the unweighted
+mean across datasets, and the confidence interval is obtained from the mean of the
+per-dataset bootstrap samples.
 
 #### Per-dataset scores and overall averages
 
@@ -348,8 +352,3 @@ As in the overall ranking, these language-level rankings are based on weighted c
 The evaluation results are available in [HIPE_OCRepair_2026_evaluation_results.md](HIPE_OCRepair_2026_evaluation_results.md) and on the [HIPE-OCRepair-2026 website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results).
 
 The **official competition ranking** is computed as described above: a **weighted mean of `cmer_micro`** across the official test sets, with the corresponding **weighted mean of `pref_cmer_macro`** as secondary criterion.
-```
-
-```
-
-```

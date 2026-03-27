@@ -51,7 +51,7 @@ def extract_metrics(averaged_scores: dict) -> dict:
         return v[0], v[1], v[2]
 
     cm, cm_lo, cm_hi = get("cmer_macro")
-    pref, pref_lo, pref_hi = get("pref_cmer_macro")
+    pref, pref_lo, pref_hi = get("pref_score_cmer_macro")
     cmi, cmi_lo, cmi_hi = get("cmer_micro")
     wm = averaged_scores.get("wmer_macro", [None])[0]
 
