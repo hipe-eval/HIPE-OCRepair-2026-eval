@@ -276,11 +276,11 @@ $$
 The reported preference metrics are macro averages over transcription units:
 
 $$
-\mathrm{pref\_score\_cmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{cmer}}(i)
+\text{pref\_score\_cmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\text{cmer}}(i)
 $$
 
 $$
-\mathrm{pref\_score\_wmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{wmer}}(i)
+\text{pref\_score\_wmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\text{wmer}}(i)
 $$
 
 #### Per-dataset scores and overall averages
