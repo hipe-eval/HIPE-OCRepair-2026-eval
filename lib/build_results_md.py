@@ -92,11 +92,11 @@ def build_team_key_table(teams: dict) -> list[str]:
 
 def build_ranking_table(rows: list[dict]) -> list[str]:
     header = (
-        "| Rank | System | cMER micro ↓ | 95% CI | Pref. score ↑ | 95% CI |"
+        "| Rank | System | cMER micro ↓ | 95% CI | Pref cMER Macro ↑ | 95% CI |"
         " cMER macro | wMER macro |"
     )
     sep = (
-        "|------|--------|--------------|--------|---------------|--------|"
+        "|------|--------|--------------|--------|--------------|--------|"
         "------------|------------|"
     )
     lines = [header, sep]
@@ -105,10 +105,10 @@ def build_ranking_table(rows: list[dict]) -> list[str]:
         system = row.get("system", "")
         cmer_micro = fmt(row.get("cmer_micro"))
         ci = f"[{fmt(row.get('cmer_micro_lo'))}, {fmt(row.get('cmer_micro_hi'))}]"
-        pref = fmt(row.get("pref_score_cmer_macro"))
+        pref = fmt(row.get("pref_cmer_macro"))
         pref_ci = (
-            f"[{fmt(row.get('pref_score_cmer_macro_lo'))},"
-            f" {fmt(row.get('pref_score_cmer_macro_hi'))}]"
+            f"[{fmt(row.get('pref_cmer_macro_lo'))},"
+            f" {fmt(row.get('pref_cmer_macro_hi'))}]"
         )
         cmer_macro = fmt(row.get("cmer_macro"))
         wmer_macro = fmt(row.get("wmer_macro"))
@@ -121,10 +121,10 @@ def build_ranking_table(rows: list[dict]) -> list[str]:
 
 def build_overall_ranking_table(rows: list[dict]) -> list[str]:
     header = (
-        "| Rank | System | Overall cMER ↓ | 95% CI\u00b9 | Overall Pref. ↑ |"
+        "| Rank | System | Overall cMER ↓ | 95% CI\u00b9 | Overall Pref Macro ↑ |"
         " 95% CI\u00b9 | Test sets |"
     )
-    sep = "|------|--------|----------------|---------|-----------------|---------|----------|"
+    sep = "|------|--------|----------------|---------|----------------------|---------|----------|"
     lines = [header, sep]
     for row in rows:
         rank = row.get("rank", "")
@@ -146,10 +146,10 @@ def build_overall_ranking_table(rows: list[dict]) -> list[str]:
 
 def build_language_ranking_table(rows: list[dict]) -> list[str]:
     header = (
-        "| Rank | System | Language cMER ↓ | 95% CI\u00b9 | Language Pref. ↑ |"
+        "| Rank | System | Language cMER ↓ | 95% CI\u00b9 | Language Pref Macro ↑ |"
         " 95% CI\u00b9 | Test sets |"
     )
-    sep = "|------|--------|-----------------|---------|------------------|---------|----------|"
+    sep = "|------|--------|-----------------|---------|----------------------|---------|----------|"
     lines = [header, sep]
     for row in rows:
         rank = row.get("rank", "")
@@ -238,7 +238,7 @@ def main() -> None:
         ),
         (
             "**Secondary metric**: overall macro-preference — weighted mean of"
-            " per-test-set preference score (`pref_score_cmer_macro`) —"
+            " per-test-set preference score (`pref_cmer_macro`) —"
             " **higher is better**"
         ),
         "",

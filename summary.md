@@ -116,12 +116,12 @@ The atomic unit for reporting is a **dataset × language × split** cell, corres
 
 For each cell, report from `fold_scores`:
 
-| Metric                  | Rationale                                                                                                                     |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `cmer_micro`            | Primary: overall character error rate, length-weighted within cell                                                            |
-| `cmer_hyp` (raw OCR)    | **Required context**: raw OCR baseline cMER; enables relative improvement computation and cross-cell comparability            |
-| `Δcmer_rel`             | Derived: `(cmer_hyp − cmer_sys) / cmer_hyp`; normalises out cross-cell differences in baseline OCR quality and document scope |
-| `pref_score_cmer_macro` | Secondary: fraction of documents improved, unaffected by document length                                                      |
+| Metric               | Rationale                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `cmer_micro`         | Primary: overall character error rate, length-weighted within cell                                                            |
+| `cmer_hyp` (raw OCR) | **Required context**: raw OCR baseline cMER; enables relative improvement computation and cross-cell comparability            |
+| `Δcmer_rel`          | Derived: `(cmer_hyp − cmer_sys) / cmer_hyp`; normalises out cross-cell differences in baseline OCR quality and document scope |
+| `pref_cmer_macro`    | Secondary: fraction of documents improved, unaffected by document length                                                      |
 
 Every leaderboard row **must** show `cmer_micro`, `cmer_hyp`, and `Δcmer_rel`. Absolute cMER values are not directly comparable across cells (pages vs. chunks vs. paragraphs have different baseline distributions); `Δcmer_rel` is the comparable quantity across cells.
 
@@ -160,7 +160,7 @@ The three DTA cells together count as one unit, giving `icdar2017`, `dta19` (as 
 
 $$\text{score}_\text{overall} = \frac{s_1 + s_2 + \tfrac{1}{3}(s_3 + s_4 + s_5) + s_6 + s_7 + s_8}{6}$$
 
-where $s_i$ is the per-cell metric value (`cmer_micro` or `pref_score_cmer_macro`). The denominator is 6 because the sum of weights is $1+1+\tfrac{1}{3}+\tfrac{1}{3}+\tfrac{1}{3}+1+1+1 = 6$. This formula applies identically to the primary and secondary rankings.
+where $s_i$ is the per-cell metric value (`cmer_micro` or `pref_cmer_macro`). The denominator is 6 because the sum of weights is $1+1+\tfrac{1}{3}+\tfrac{1}{3}+\tfrac{1}{3}+1+1+1 = 6$. This formula applies identically to the primary and secondary rankings.
 
 The scorer's `averaged_scores` output does **not** apply these weights. Official ranking values must be computed externally using the formula above.
 
@@ -168,7 +168,7 @@ The scorer's `averaged_scores` output does **not** apply these weights. Official
 
 **Primary ranking**: weighted mean of per-cell `cmer_micro` across cells 1–8, **lower is better**, using the design weights defined above. This is the official leaderboard criterion.
 
-**Secondary ranking**: weighted mean of per-cell `pref_score_cmer_macro` across cells 1–8, **higher is better**, using the same weights. Captures whether a system consistently helps rather than occasionally hurts, unaffected by document length.
+**Secondary ranking**: weighted mean of per-cell `pref_cmer_macro` across cells 1–8, **higher is better**, using the same weights. Captures whether a system consistently helps rather than occasionally hurts, unaffected by document length.
 
 **Per-cell reporting**: always include `cmer_micro`, `cmer_hyp` (raw OCR baseline), and `Δcmer_rel = (cmer_hyp − cmer_sys) / cmer_hyp` for each cell. Absolute cMER is not directly comparable across cells (pages vs. chunks vs. paragraphs differ in baseline error rate); `Δcmer_rel` provides the cross-cell-comparable view.
 
@@ -187,16 +187,16 @@ The scorer's `averaged_scores` output does **not** apply these weights. Official
 
 ## All Metrics
 
-| Metric                  | Level     | Aggregation                                     |
-| ----------------------- | --------- | ----------------------------------------------- |
-| `cmer_micro`            | character | micro (pool counts, then MER) — **primary**     |
-| `wmer_micro`            | word      | micro                                           |
-| `cmer_macro`            | character | macro (mean of per-doc MER)                     |
-| `wmer_macro`            | word      | macro                                           |
-| `pref_score_cmer_macro` | character | macro (mean of ±1/0 per doc)                    |
-| `pref_score_wmer_macro` | word      | macro                                           |
-| `pcis_cmer_macro`       | character | macro (mean of normalised relative improvement) |
-| `pcis_wmer_macro`       | word      | macro                                           |
+| Metric            | Level     | Aggregation                                     |
+| ----------------- | --------- | ----------------------------------------------- |
+| `cmer_micro`      | character | micro (pool counts, then MER) — **primary**     |
+| `wmer_micro`      | word      | micro                                           |
+| `cmer_macro`      | character | macro (mean of per-doc MER)                     |
+| `wmer_macro`      | word      | macro                                           |
+| `pref_cmer_macro` | character | macro (mean of ±1/0 per doc)                    |
+| `pref_wmer_macro` | word      | macro                                           |
+| `pcis_cmer_macro` | character | macro (mean of normalised relative improvement) |
+| `pcis_wmer_macro` | word      | macro                                           |
 
 All metrics include 95% confidence intervals computed with 10 000 bootstrap resamples at the document level.
 

@@ -15,7 +15,7 @@ Weighting scheme (loaded from --competition-config):
     so that the three DTA parts together contribute as one dataset.
 
 Primary metric:   weighted mean of per-test-set cmer_micro
-Secondary metric: weighted mean of per-test-set pref_score_cmer_macro
+Secondary metric: weighted mean of per-test-set pref_cmer_macro
 """
 
 import argparse
@@ -51,7 +51,7 @@ def extract_metrics(averaged_scores: dict) -> dict:
         return v[0], v[1], v[2]
 
     cm, cm_lo, cm_hi = get("cmer_macro")
-    pref, pref_lo, pref_hi = get("pref_score_cmer_macro")
+    pref, pref_lo, pref_hi = get("pref_cmer_macro")
     cmi, cmi_lo, cmi_hi = get("cmer_micro")
     wm = averaged_scores.get("wmer_macro", [None])[0]
 
@@ -59,9 +59,9 @@ def extract_metrics(averaged_scores: dict) -> dict:
         "cmer_macro": cm,
         "cmer_macro_lo": cm_lo,
         "cmer_macro_hi": cm_hi,
-        "pref_score_cmer_macro": pref,
-        "pref_score_cmer_macro_lo": pref_lo,
-        "pref_score_cmer_macro_hi": pref_hi,
+        "pref_cmer_macro": pref,
+        "pref_cmer_macro_lo": pref_lo,
+        "pref_cmer_macro_hi": pref_hi,
         "cmer_micro": cmi,
         "cmer_micro_lo": cmi_lo,
         "cmer_micro_hi": cmi_hi,
@@ -154,9 +154,9 @@ def main() -> None:
         "cmer_micro",
         "cmer_micro_lo",
         "cmer_micro_hi",
-        "pref_score_cmer_macro",
-        "pref_score_cmer_macro_lo",
-        "pref_score_cmer_macro_hi",
+        "pref_cmer_macro",
+        "pref_cmer_macro_lo",
+        "pref_cmer_macro_hi",
         "cmer_macro",
         "cmer_macro_lo",
         "cmer_macro_hi",
@@ -168,8 +168,8 @@ def main() -> None:
             key=lambda r: (
                 r["cmer_micro"] if r["cmer_micro"] is not None else float("inf"),
                 -(
-                    r["pref_score_cmer_macro"]
-                    if r["pref_score_cmer_macro"] is not None
+                    r["pref_cmer_macro"]
+                    if r["pref_cmer_macro"] is not None
                     else float("-inf")
                 ),
             )
@@ -219,9 +219,9 @@ def main() -> None:
                     "cmi": m["cmer_micro"],
                     "cmi_lo": m["cmer_micro_lo"],
                     "cmi_hi": m["cmer_micro_hi"],
-                    "pref": m["pref_score_cmer_macro"],
-                    "pref_lo": m["pref_score_cmer_macro_lo"],
-                    "pref_hi": m["pref_score_cmer_macro_hi"],
+                    "pref": m["pref_cmer_macro"],
+                    "pref_lo": m["pref_cmer_macro_lo"],
+                    "pref_hi": m["pref_cmer_macro_hi"],
                     "w": (
                         competition_cells.get((d, l), 1.0) if competition_cells else 1.0
                     ),
@@ -302,9 +302,9 @@ def main() -> None:
                         "cmi": m["cmer_micro"],
                         "cmi_lo": m["cmer_micro_lo"],
                         "cmi_hi": m["cmer_micro_hi"],
-                        "pref": m["pref_score_cmer_macro"],
-                        "pref_lo": m["pref_score_cmer_macro_lo"],
-                        "pref_hi": m["pref_score_cmer_macro_hi"],
+                        "pref": m["pref_cmer_macro"],
+                        "pref_lo": m["pref_cmer_macro_lo"],
+                        "pref_hi": m["pref_cmer_macro_hi"],
                         "w": (
                             competition_cells.get((d, l), 1.0)
                             if competition_cells
