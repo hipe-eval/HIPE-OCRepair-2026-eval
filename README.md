@@ -33,11 +33,8 @@ evaluation scorer that includes some normalization to the reference and hypothes
 data/
   reference/              # Gold-standard reference JSONL files (one per dataset/split/language)
   reference-dummy/        # Synthetic reference files for dry-run testing
-evaluation/
-  system-responses/
-    submitted/            # Participant submission JSONL files
-  system-responses-dummy/
-    submitted/            # Dummy baseline files (generated; not committed)
+  systems/                # Participant submission JSONL files
+  systems-dummy/          # Dummy baseline files (generated; not committed)
 lib/
   score_one.py                # Score a single hypothesis against its reference
   build_rankings.py           # Aggregate per-run scores into ranked TSV files
@@ -144,7 +141,7 @@ The exact versioned dataset identifiers are:
 
 Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_dev_de_run1.jsonl`
 
-All submission files will be placed in `evaluation/system-responses/submitted/`.
+All submission files will be placed in `data/systems/`.
 
 ### Dry-run with dummy data
 
@@ -159,8 +156,8 @@ make eval-full-dummy   # clean → generate baselines → score → rankings →
 Step by step:
 
 ```bash
-make baselines-dummy   # Generate same/random baselines in evaluation/system-responses-dummy/submitted/
-make score-dummy       # Score all files in evaluation/system-responses-dummy/submitted/
+make baselines-dummy   # Generate same/random baselines in data/systems-dummy/
+make score-dummy       # Score all files in data/systems-dummy/
 make rankings-dummy    # Build per-cell and overall ranking TSVs in results-dummy/system-rankings/
 make results-md-dummy  # Render HIPE_OCRepair_2026_evaluation_results_dummy.md
 make clean-dummy       # Remove all dummy-pipeline outputs and generated baselines

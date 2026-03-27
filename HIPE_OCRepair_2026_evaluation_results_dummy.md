@@ -29,8 +29,8 @@ Scores are computed separately for each official test set. Overall benchmark sco
 
 | Rank | System | Overall cMER ↓ | 95% CI¹ | Overall Pref. ↑ | 95% CI¹ | Test sets |
 |------|--------|----------------|---------|-----------------|---------|----------|
-| 1 | same_hipe-ocrepair-bench_v0.9_run1 | 0.0282 | [0.0059, 0.0625] | 0.0000 | [0.0000, 0.0000] | 1/1 |
-| 2 | random_hipe-ocrepair-bench_v0.9_run1 | 0.5829 | [0.5037, 0.6610] | -1.0000 | [-1.0000, -1.0000] | 1/1 |
+| 1 | same_hipe-ocrepair-bench_v0.9_run1 | 0.0268 | [0.0146, 0.0431] | 0.0000 | [0.0000, 0.0000] | 4/4 |
+| 2 | random_hipe-ocrepair-bench_v0.9_run1 | 0.6435 | [0.6191, 0.6673] | -1.0000 | [-1.0000, -1.0000] | 4/4 |
 
 See [ranking-overall-test-weighted.tsv](results-dummy/system-rankings/ranking-overall-test-weighted.tsv) for full details.
 
@@ -48,6 +48,24 @@ Per-language rankings are computed in the same way as the overall ranking, but r
 | 2 | random_hipe-ocrepair-bench_v0.9_run1 | 0.5829 | [0.5037, 0.6610] | -1.0000 | [-1.0000, -1.0000] | 1/1 |
 
 See [ranking-language-de-test-weighted.tsv](results-dummy/system-rankings/ranking-language-de-test-weighted.tsv) for full details.
+
+### Language: en (English) — test split
+
+| Rank | System | Language cMER ↓ | 95% CI¹ | Language Pref. ↑ | 95% CI¹ | Test sets |
+|------|--------|-----------------|---------|------------------|---------|----------|
+| 1 | same_hipe-ocrepair-bench_v0.9_run1 | 0.0343 | [0.0233, 0.0457] | 0.0000 | [0.0000, 0.0000] | 2/2 |
+| 2 | random_hipe-ocrepair-bench_v0.9_run1 | 0.6646 | [0.6583, 0.6704] | -1.0000 | [-1.0000, -1.0000] | 2/2 |
+
+See [ranking-language-en-test-weighted.tsv](results-dummy/system-rankings/ranking-language-en-test-weighted.tsv) for full details.
+
+### Language: fr (French) — test split
+
+| Rank | System | Language cMER ↓ | 95% CI¹ | Language Pref. ↑ | 95% CI¹ | Test sets |
+|------|--------|-----------------|---------|------------------|---------|----------|
+| 1 | same_hipe-ocrepair-bench_v0.9_run1 | 0.0104 | [0.0058, 0.0185] | 0.0000 | [0.0000, 0.0000] | 1/1 |
+| 2 | random_hipe-ocrepair-bench_v0.9_run1 | 0.6618 | [0.6563, 0.6672] | -1.0000 | [-1.0000, -1.0000] | 1/1 |
+
+See [ranking-language-fr-test-weighted.tsv](results-dummy/system-rankings/ranking-language-fr-test-weighted.tsv) for full details.
 
 ## Results by dataset
 

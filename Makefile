@@ -4,14 +4,14 @@ PYTHON        := venv/bin/python
 
 # --- Real pipeline paths ---
 REFERENCE_DIR          ?= data/reference
-SUBMISSIONS_DIR        ?= evaluation/system-responses/submitted
+SUBMISSIONS_DIR        ?= data/systems
 PER_RUN_DIR            := results/per-run
 RANKINGS_DIR           := results/system-rankings
 RESULTS_MD             := HIPE_OCRepair_2026_evaluation_results.md
 
 # --- Dummy pipeline paths (isolated from real pipeline) ---
 REFERENCE_DIR_DUMMY    ?= data/reference-dummy
-SUBMISSIONS_DUMMY_DIR  ?= evaluation/system-responses-dummy/submitted
+SUBMISSIONS_DUMMY_DIR  ?= data/systems-dummy
 PER_RUN_DIR_DUMMY      := results-dummy/per-run
 RANKINGS_DIR_DUMMY     := results-dummy/system-rankings
 RESULTS_MD_DUMMY       := HIPE_OCRepair_2026_evaluation_results_dummy.md
