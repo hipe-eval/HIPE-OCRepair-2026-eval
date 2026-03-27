@@ -257,7 +257,7 @@ The preference score for one transcription unit _i_ is defined as follows:
 The reported preference metrics are macro averages over transcription units:
 
 ```math
-\mathrm{pref\_cMER\_macro} =
+\mathrm{pref\_score\_cMER\_macro} =
 \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref\_cMER}(i)
 ```
 
@@ -265,7 +265,7 @@ The reported preference metrics are macro averages over transcription units:
 
 The report tables include **95% bootstrap confidence intervals** for **`cmer_micro`** and **`pref_score_cmer_macro`**. These intervals are based on **10,000 bootstrap resamples** of the transcription units.
 
-For **micro-averaged** metrics such as `cmer_micro`, the scorer resamples transcription units, sums their alignment counts, and recomputes the score from the pooled totals. For **macro-averaged** metrics such as `pref_cmer_macro`, it resamples the transcription units, recomputes the per-unit scores, and then takes their mean.
+For **micro-averaged** metrics such as `cmer_micro`, the scorer resamples transcription units, sums their alignment counts, and recomputes the score from the pooled totals. For **macro-averaged** metrics such as `pref_score_cmer_macro`, it resamples the transcription units, recomputes the per-unit scores, and then takes their mean.
 
 The reported lower and upper bounds correspond to the **2.5th** and **97.5th
 percentiles** of the bootstrap distribution. In `fold_scores`, each metric is stored as
