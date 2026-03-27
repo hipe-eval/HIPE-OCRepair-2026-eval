@@ -93,7 +93,7 @@ Submission files are JSONL files (one JSON object per line). Each record must co
 {
   "document_metadata": {
     "document_id": "unique-id",
-    "primary_dataset_name": "One of the official datasets (e.g., icdar2017, dta19-l0, etc.)",
+    "primary_dataset_name": "unversioned dataset name as it appears in the reference file (e.g., icdar2017, impresso-snippets, dta19-l0)",
     "language": "Language code (e.g., en, de, fr)"
   },
   "ground_truth": {
@@ -109,17 +109,40 @@ Submission files are JSONL files (one JSON object per line). Each record must co
 ```
 
 **File naming convention:**
-The submitted filename must follow the pattern:
+A submission filename is formed by prepending your team name and appending a run suffix to the reference filename:
 
 ```
-<teamname>_hipe-ocrepair-bench_<version>_<dataset>_<split>_<language>_run<N>.jsonl
+<teamname>_<reference-stem>_run<N>.jsonl
+```
+
+where `<reference-stem>` is the reference file's name without the `.jsonl` extension, and `run<N>` ∈ `{run1, run2, run3}`.
+
+Expanded, this gives:
+
+```
+<teamname>_hipe-ocrepair-bench_<bench-version>_<dataset>_<dataset-version>_<split>_<language>_run<N>.jsonl
 ```
 
 - `<teamname>`: lowercase alphanumeric characters and hyphens only — **no underscores**
-- `<version>`, `<dataset>`, `<split>`, `<language>`: must match the corresponding reference file
+- `<bench-version>`: benchmark version, currently `v0.9`
+- `<dataset>_<dataset-version>`: exact versioned dataset identifier — see table below
+- `<split>`: `test`
+- `<language>`: `en`, `de`, or `fr`
 - `run<N>`: `run1`, `run2`, or `run3` — up to 3 runs per reference file per team
 
-Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1.jsonl`
+The exact versioned dataset identifiers are:
+
+| Source dataset    | Versioned dataset identifier | Language(s) |
+| ----------------- | ---------------------------- | ----------- |
+| icdar2017         | `icdar2017_v1.1`             | en, fr      |
+| impresso-snippets | `impresso-snippets_v1.0`     | de, en, fr  |
+| impresso-nzz      | `impresso-nzz_v1.1`          | de          |
+| dta19 (level 0)   | `dta19-l0_v0.1`              | de          |
+| dta19 (level 1)   | `dta19-l1_v0.1`              | de          |
+| dta19 (level 2)   | `dta19-l2_v0.1`              | de          |
+| overproof         | `overproof-combined_v1.0`    | en          |
+
+Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_dev_de_run1.jsonl`
 
 All submission files will be placed in `evaluation/system-responses/submitted/`.
 
@@ -253,24 +276,24 @@ The weights are chosen so that the language-level contributions remain balanced:
 
 Thus, the three DTA test sets together contribute the same total weight as one other test set. This means that, for each language, the combined contribution is effectively based on **two equally weighted dataset groups**.
 
-| Testsets            | Lang | Weight |
-| ------------------- | ---- | ------ |
-| `dta19-l0`          | de   | 1/3    |
-| `dta19-l1`          | de   | 1/3    |
-| `dta19-l2`          | de   | 1/3    |
-| `impresso-snippets` | de   | 1      |
+| Unversioned dataset identifier | Lang | Weight |
+| ------------------------------ | ---- | ------ |
+| dta19-l0                       | de   | 1/3    |
+| dta19-l1                       | de   | 1/3    |
+| dta19-l2                       | de   | 1/3    |
+| impresso-snippets              | de   | 1      |
 
-| Testsets            | Lang | Weight |
-| ------------------- | ---- | ------ |
-| `icdar2017`         | en   | 1      |
-| `impresso-snippets` | en   | 1      |
+| Unversioned dataset identifier | Lang | Weight |
+| ------------------------------ | ---- | ------ |
+| `icdar2017                     | en   | 1      |
+| `impresso-snippets             | en   | 1      |
 
-| Testsets            | Lang | Weight |
-| ------------------- | ---- | ------ |
-| `icdar2017`         | fr   | 1      |
-| `impresso-snippets` | fr   | 1      |
+| Unversioned dataset identifier | Lang | Weight |
+| ------------------------------ | ---- | ------ |
+| icdar2017                      | fr   | 1      |
+| impresso-snippets              | fr   | 1      |
 
-`impresso-nzz` and `overproof-combined` have no competition test sets and do not contribute to the official rankings.
+`impresso-nzz` and `overproof-combined` datasets do not contribute to the official rankings because they have been released earlier to the public.
 
 ### Results
 
@@ -289,10 +312,10 @@ In addition to the overall competition ranking, we report **per-language ranking
 
 For a given language, the ranking is computed as a **weighted mean of per-test-set `cmer_micro`** over the official test sets for that language. The secondary criterion is the corresponding **weighted mean of `pref_score_cmer_macro`**.
 
-This means:
+This means in terms of unversioned datasets:
 
 - for **English**, the language score is the mean over `icdar2017` and `impresso-snippets`
 - for **French**, the language score is the mean over `icdar2017` and `impresso-snippets`
-- for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l1`, and `dta19-l2` with weight `1/3` each
+- for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l11`, and `dta19-l2` with weight `1/3` each
 
 As in the overall ranking, these language-level rankings are based on weighted combinations of **per-test-set scores**. They should not be confused with the scorer’s internal notions of **micro** and **macro**, which refer to aggregation over transcription units within a dataset.
