@@ -233,8 +233,6 @@ The evaluation reports show the following metrics:
 - **`cmer_macro`**: macro-averaged character-level Match Error Rate
 - **`wmer_micro`**: micro-averaged word-level Match Error Rate
 - **`wmer_macro`**: macro-averaged word-level Match Error Rate
-- **`pref_score_cmer_macro`**: macro-averaged preference score comparing system cMER to raw OCR cMER
-- **`pref_score_wmer_macro`**: macro-averaged preference score comparing system wMER to raw OCR wMER
 
 At the transcription-unit level, MER is defined as:
 
@@ -242,7 +240,7 @@ $$
 \mathrm{MER} = \frac{S + D + I}{H + S + D + I}
 $$
 
-where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions.
+where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions at the relevant alignment level (characters for cMER, words for wMER).
 
 For a dataset with transcription units \(i = 1, \dots, N\):
 
@@ -255,32 +253,33 @@ $$
 $$
 
 $$
-\mathrm{cMER}_{\mathrm{micro}} = \frac{\sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}{\sum_{i} H_{i} + \sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}
+\mathrm{cMER}_{\mathrm{micro}} =
+\frac{\sum_i S_i + \sum_i D_i + \sum_i I_i}
+     {\sum_i H_i + \sum_i S_i + \sum_i D_i + \sum_i I_i}
 $$
 
 $$
-\mathrm{wMER}_{\mathrm{micro}} = \frac{\sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}{\sum_{i} H_{i} + \sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}
+\mathrm{wMER}_{\mathrm{micro}} =
+\frac{\sum_i S_i + \sum_i D_i + \sum_i I_i}
+     {\sum_i H_i + \sum_i S_i + \sum_i D_i + \sum_i I_i}
 $$
 
-The preference score for one transcription unit is:
+The preference score for one transcription unit is defined as follows:
 
-$$
-\mathrm{pref}(i) =
-\begin{cases}
-1 & \text{if the system score is better than the raw OCR score} \\
-0 & \text{if both scores are equal} \\
--1 & \text{if the system score is worse than the raw OCR score}
-\end{cases}
-$$
+- \(1\) if the system score is better than the raw OCR score
+- \(0\) if both scores are equal
+- \(-1\) if the system score is worse than the raw OCR score
 
 The reported preference metrics are macro averages over transcription units:
 
 $$
-\text{pref\_score\_cmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\text{cmer}}(i)
+\mathrm{pref\_score\_cmer\_macro} =
+\frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{cmer}}(i)
 $$
 
 $$
-\text{pref\_score\_wmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\text{wmer}}(i)
+\mathrm{pref\_score\_wmer\_macro} =
+\frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{wmer}}(i)
 $$
 
 #### Per-dataset scores and overall averages
