@@ -1,4 +1,6 @@
 {
   "same": "Example University, City, Country",
-  "random": "Test Institute, City, Country"
+  "random": "Test Institute, City, Country",
+  "charswap10": "Swap 10% Institute, City, Country",
+    "charswap05": "Swap 5% Institute, City, Country"
 }
