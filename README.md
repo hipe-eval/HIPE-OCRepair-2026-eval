@@ -211,7 +211,7 @@ The evaluation reports show the following metrics:
 - **`cmer_macro`**: macro-averaged character-level Match Error Rate
 - **`wmer_micro`**: micro-averaged word-level Match Error Rate
 - **`wmer_macro`**: macro-averaged word-level Match Error Rate
-- **`pref_cmer_macro`**: macro-averaged preference score based on cMER
+- **`pref_score_cmer_macro`**: macro-averaged preference score based on cMER
 
 At the transcription-unit level, MER is defined as:
 
@@ -263,7 +263,7 @@ The reported preference metrics are macro averages over transcription units:
 
 #### Confidence intervals
 
-The report tables include **95% bootstrap confidence intervals** for **`cmer_micro`** and **`pref_cmer_macro`**. These intervals are based on **10,000 bootstrap resamples** of the transcription units.
+The report tables include **95% bootstrap confidence intervals** for **`cmer_micro`** and **`pref_score_cmer_macro`**. These intervals are based on **10,000 bootstrap resamples** of the transcription units.
 
 For **micro-averaged** metrics such as `cmer_micro`, the scorer resamples transcription units, sums their alignment counts, and recomputes the score from the pooled totals. For **macro-averaged** metrics such as `pref_cmer_macro`, it resamples the transcription units, recomputes the per-unit scores, and then takes their mean.
 
@@ -294,7 +294,7 @@ The **primary per-test-set ranking metric** is **`cmer_micro`**:
 - computed separately for each dataset
 - longer transcription units contribute more within a dataset
 
-The **secondary ranking metric** is **`pref_cmer_macro`**:
+The **secondary ranking metric** is **`pref_score_cmer_macro`**:
 
 - higher is better
 - measures how consistently a system improves over the raw OCR input across transcription units
@@ -337,7 +337,7 @@ Thus, the three DTA test sets together contribute the same total weight as one o
 
 In addition to the overall competition ranking, we report **per-language rankings** of submitted runs.
 
-For a given language, the ranking is computed as a **weighted mean of per-test-set `cmer_micro`** over the official test sets for that language. The secondary criterion is the corresponding **weighted mean of `pref_cmer_macro`**.
+For a given language, the ranking is computed as a **weighted mean of per-test-set `cmer_micro`** over the official test sets for that language. The secondary criterion is the corresponding **weighted mean of `pref_score_cmer_macro`**.
 
 This means in terms of unversioned datasets:
 
@@ -351,4 +351,4 @@ As in the overall ranking, these language-level rankings are based on weighted c
 
 The evaluation results are available in [HIPE_OCRepair_2026_evaluation_results.md](HIPE_OCRepair_2026_evaluation_results.md) and on the [HIPE-OCRepair-2026 website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results).
 
-The **official competition ranking** is computed as described above: a **weighted mean of `cmer_micro`** across the official test sets, with the corresponding **weighted mean of `pref_cmer_macro`** as secondary criterion.
+The **official competition ranking** is computed as described above: a **weighted mean of `cmer_micro`** across the official test sets, with the corresponding **weighted mean of `pref_score_cmer_macro`** as secondary criterion.
