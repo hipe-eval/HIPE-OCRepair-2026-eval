@@ -113,7 +113,7 @@ def main() -> None:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
     cmer = results["averaged_scores"]["cmer_macro"][0]
-    pref = results["averaged_scores"]["pref_cmer_macro"][0]
+    pref = results["averaged_scores"]["pref_score_cmer_macro"][0]
     print(f"  cmer_macro={cmer:.4f}  pref_cmer_macro={pref:.4f}", file=sys.stderr)
 
 
