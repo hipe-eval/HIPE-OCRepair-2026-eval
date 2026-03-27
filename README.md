@@ -182,7 +182,7 @@ Primary metrics are based on **character-level Match Error Rate (cMER)**:
 
 $$\text{cMER} = \frac{S + D + I}{H + S + D + I}$$
 
-where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions on the level of characters. Unlike standard CER/WER, MER is bounded in \([0,1]\), because insertions are included in the denominator.
+where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions on the level of characters. Unlike standard CER/WER, cMER is bounded in \([0,1]\), because insertions are included in the denominator.
 
 Before scoring in normalized setup, texts are normalized as follows:
 
@@ -242,7 +242,7 @@ $$
 
 where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions at the relevant alignment level (characters for cMER, words for wMER).
 
-For a dataset with transcription units \(i = 1, \dots, N\):
+For a dataset with transcription units \(i = 1, ..., N\):
 
 $$
 \mathrm{cMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{cMER}_{i}
@@ -363,6 +363,6 @@ This means in terms of unversioned datasets:
 
 - for **English**, the language score is the mean over `icdar2017` and `impresso-snippets`
 - for **French**, the language score is the mean over `icdar2017` and `impresso-snippets`
-  - for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l1`, and `dta19-l2` with weight `1/3` each
+- for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l1`, and `dta19-l2` with weight `1/3` each
 
 As in the overall ranking, these language-level rankings are based on weighted combinations of **per-test-set scores**. They should not be confused with the scorer’s internal notions of **micro** and **macro**, which refer to aggregation over transcription units within a dataset.
