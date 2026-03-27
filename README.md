@@ -203,7 +203,7 @@ For each dataset, the scorer reports:
 
 - **`cmer_micro`**: character-level MER obtained by summing alignment counts across all transcription units in the dataset and computing cMER once from the summed totals within a test set
 - **`cmer_macro`**: arithmetic mean of the transcription-unit-level cMER scores within a test set
-- **`wmer_micro`** and **`wmer_macro`**  are computed in the same way as cmer_micro and cmer_macro, but using word-level alignments produced by jiwer.process_words(...) after normalization. Here, hits, substitutions, deletions, and insertions are counted over aligned word sequences rather than character sequences.
+- **`wmer_micro`** and **`wmer_macro`** are computed in the same way as cmer_micro and cmer_macro, but using word-level alignments produced by jiwer.process_words(...) after normalization. Here, hits, substitutions, deletions, and insertions are counted over aligned word sequences rather than character sequences.
 
 In other words:
 
@@ -247,19 +247,19 @@ where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insert
 For a dataset with transcription units \(i = 1, \dots, N\):
 
 $$
-\mathrm{cMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{cMER}_i
+\mathrm{cMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{cMER}_{i}
 $$
 
 $$
-\mathrm{wMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{wMER}_i
+\mathrm{wMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{wMER}_{i}
 $$
 
 $$
-\mathrm{cMER}_{\mathrm{micro}} = \frac{\sum_i S_i + \sum_i D_i + \sum_i I_i}{\sum_i H_i + \sum_i S_i + \sum_i D_i + \sum_i I_i}
+\mathrm{cMER}_{\mathrm{micro}} = \frac{\sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}{\sum_{i} H_{i} + \sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}
 $$
 
 $$
-\mathrm{wMER}_{\mathrm{micro}} = \frac{\sum_i S_i + \sum_i D_i + \sum_i I_i}{\sum_i H_i + \sum_i S_i + \sum_i D_i + \sum_i I_i}
+\mathrm{wMER}_{\mathrm{micro}} = \frac{\sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}{\sum_{i} H_{i} + \sum_{i} S_{i} + \sum_{i} D_{i} + \sum_{i} I_{i}}
 $$
 
 The preference score for one transcription unit is:
