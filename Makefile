@@ -15,6 +15,9 @@ SUBMISSIONS_DUMMY_DIR  ?= data/systems-dummy
 PER_RUN_DIR_DUMMY      := results-dummy/per-run
 RANKINGS_DIR_DUMMY     := results-dummy/system-rankings
 RESULTS_MD_DUMMY       := HIPE_OCRepair_2026_evaluation_results_dummy.md
+DUMMY_BASELINE_SWAP_CHARS ?= 0.05 0.1
+DUMMY_BASELINE_SWAP_WORDS ?= 0.01 0.05
+DUMMY_BASELINE_RUN_SEEDS  ?= --run-seeds
 
 TEAMS_JSON         := lib/teams.json
 COMPETITION_CONFIG := lib/competition_config.json
@@ -42,7 +45,12 @@ $(PER_RUN_DIR)/%.json: $(SUBMISSIONS_DIR)/%.jsonl | $(PER_RUN_DIR)
 
 .PHONY: baselines-dummy
 baselines-dummy: | $(SUBMISSIONS_DUMMY_DIR)
-	$(foreach ref,$(REFERENCE_FILES_DUMMY),$(PYTHON) lib/create_dummy_baselines.py "$(ref)" $(SUBMISSIONS_DUMMY_DIR);)
+	$(PYTHON) lib/create_dummy_baselines.py \
+		--output-dir $(SUBMISSIONS_DUMMY_DIR) \
+		--swap-chars $(DUMMY_BASELINE_SWAP_CHARS) \
+		--swap-words $(DUMMY_BASELINE_SWAP_WORDS) \
+		$(DUMMY_BASELINE_RUN_SEEDS) \
+		$(REFERENCE_FILES_DUMMY)
 
 .PHONY: score
 score: $(PER_RUN_JSONS)
@@ -87,7 +95,7 @@ eval-full-refresh:
 
 .PHONY: clean-dummy
 clean-dummy:
-	find $(SUBMISSIONS_DUMMY_DIR) -maxdepth 1 \( -name 'same_*.jsonl' -o -name 'random_*.jsonl' \) -delete
+	find $(SUBMISSIONS_DUMMY_DIR) -maxdepth 1 \( -name 'perfect_*.jsonl' -o -name 'no-correction_*.jsonl' -o -name 'char-swaps-*.jsonl' -o -name 'word-swaps-*.jsonl' -o -name 'same_*.jsonl' -o -name 'random_*.jsonl' \) -delete
 	rm -rf $(PER_RUN_DIR_DUMMY) $(RANKINGS_DIR_DUMMY) $(RESULTS_MD_DUMMY)
 
 .PHONY: clean
@@ -105,7 +113,7 @@ help:
 	@echo "  eval-full-refresh  Remove all derived real files and re-run eval-full from scratch"
 	@echo ""
 	@echo "Dummy pipeline step-by-step (all output under results-dummy/):"
-	@echo "  baselines-dummy    Generate same/random baselines from $(REFERENCE_DIR_DUMMY)"
+	@echo "  baselines-dummy    Generate dummy baselines from $(REFERENCE_DIR_DUMMY) into $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
 	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
@@ -123,4 +131,6 @@ help:
 	@echo "  REFERENCE_DIR        Real reference JSONL directory     (default: data/reference)"
 	@echo "  REFERENCE_DIR_DUMMY  Dummy reference JSONL directory    (default: data/reference-dummy)"
 	@echo "  SUBMISSIONS_DUMMY_DIR  Dummy hypothesis directory       (default: $(SUBMISSIONS_DUMMY_DIR))"
+	@echo "  DUMMY_BASELINE_SWAP_CHARS  Character swap ratios        (default: $(DUMMY_BASELINE_SWAP_CHARS))"
+	@echo "  DUMMY_BASELINE_SWAP_WORDS  Word swap ratios             (default: $(DUMMY_BASELINE_SWAP_WORDS))"
 	@echo ""

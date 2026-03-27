@@ -1,81 +1,97 @@
 """Create baseline hypothesis files using dummy correction strategies.
 
 Usage:
-    python lib/create_dummy_baselines.py <input_hypothesis.jsonl> <output_dir>
-    python lib/create_dummy_baselines.py <input_hypothesis.jsonl> <output_dir> --char-swaps 0.01
+    python lib/create_dummy_baselines.py <input1.jsonl> [<input2.jsonl> ...]
+    python lib/create_dummy_baselines.py <input1.jsonl> [<input2.jsonl> ...] \
+        --output-dir baselines.out \
+        --swap-chars 0.01 0.05 --swap-words 0.01 --run-seeds
 
 Creates one hypothesis file per strategy in the output directory.
 Output filenames follow the submission naming convention:
-    <strategy>_<benchmark-stem>_run1.jsonl
+    <strategy>_<benchmark-stem>_runN.jsonl
 """
 
-import sys
 import json
 import math
 import argparse
 from pathlib import Path
 
 
-class DummyCorrectReproduce:
-    """Identity baseline: copies the OCR hypothesis unchanged."""
+def format_ratio_for_name(value: float) -> str:
+    percent = value * 100
+    if percent < 10 and float(percent).is_integer():
+        return f"p0{int(percent)}"
+    if float(percent).is_integer():
+        return f"p{int(percent)}"
+    return f"p{str(percent).rstrip('0').rstrip('.').replace('.', 'p')}"
+
+
+class DummyCorrectPerfect:
+    """Perfect baseline: copies the ground truth unchanged."""
 
     def __init__(self):
-        self.name = "same"
+        self.name = "perfect"
+
+    @staticmethod
+    def source_text(record):
+        return record["ground_truth"]["transcription_unit"]
 
     @staticmethod
     def correct_text(sentence, lang):
         return sentence
 
 
-class DummyCorrectRandom:
-    """Random baseline: shuffles words in the OCR hypothesis."""
+class DummyCorrectNoCorrection:
+    """No-correction baseline: copies the OCR hypothesis unchanged."""
 
     def __init__(self):
-        from random import Random
+        self.name = "no-correction"
 
-        self.rng = Random(42)
-        self.name = "random"
+    @staticmethod
+    def source_text(record):
+        return record["ocr_hypothesis"]["transcription_unit"]
 
-    def correct_text(self, sentence, lang):
-        words = sentence.split()
-        self.rng.shuffle(words)
-        return " ".join(words)
+    @staticmethod
+    def correct_text(sentence, lang):
+        return sentence
 
 
 class DummyCorrectCharSwaps:
-    """Corruption baseline: swaps a proportion of randomly chosen adjacent character pairs.
+    """Swap a proportion of randomly chosen adjacent character pairs.
 
-    The corrupted text is derived from the ground truth, not from the OCR hypothesis.
-    A value of char_swaps=0.01 means that approximately 1% of available adjacent
-    non-overlapping character pairs in the text are swapped.
-
-    Swaps are reproducible because a fixed random seed is used.
+    The corrupted text is derived from the ground truth.
+    A value of swap_ratio=0.01 means that approximately 1% of available
+    non-overlapping adjacent character pairs in the text are swapped.
     """
 
-    def __init__(self, char_swaps: float, seed: int = 42):
+    def __init__(self, swap_ratio: float, seed: int):
         from random import Random
 
-        if not (0.0 <= char_swaps <= 1.0):
-            raise ValueError("--char-swaps must be in the range [0, 1].")
-        self.char_swaps = char_swaps
+        if not (0.0 <= swap_ratio <= 1.0):
+            raise ValueError("--swap-chars values must be in the range [0, 1].")
+
+        self.swap_ratio = swap_ratio
         self.rng = Random(seed)
-        pct = int(round(char_swaps * 100))
-        self.name = f"charswap{pct:02d}"
+        self.name = f"char-swaps-{format_ratio_for_name(swap_ratio)}"
+
+    @staticmethod
+    def source_text(record):
+        return record["ground_truth"]["transcription_unit"]
 
     def correct_text(self, sentence, lang):
-        if len(sentence) < 2 or self.char_swaps <= 0.0:
+        if len(sentence) < 2 or self.swap_ratio <= 0.0:
             return sentence
 
         chars = list(sentence)
 
-        # Available non-overlapping adjacent pairs: (0,1), (2,3), (4,5), ...
+        # Non-overlapping adjacent pairs: (0,1), (2,3), (4,5), ...
         pair_starts = list(range(0, len(chars) - 1, 2))
         n_pairs = len(pair_starts)
         if n_pairs == 0:
             return sentence
 
-        n_swaps = int(math.floor(n_pairs * self.char_swaps))
-        if n_swaps == 0 and self.char_swaps > 0:
+        n_swaps = int(math.floor(n_pairs * self.swap_ratio))
+        if n_swaps == 0 and self.swap_ratio > 0:
             n_swaps = 1
         n_swaps = min(n_swaps, n_pairs)
 
@@ -86,7 +102,49 @@ class DummyCorrectCharSwaps:
         return "".join(chars)
 
 
-DEFAULT_STRATEGIES = [DummyCorrectReproduce, DummyCorrectRandom]
+class DummyCorrectWordSwaps:
+    """Swap a proportion of randomly chosen adjacent word pairs.
+
+    The corrupted text is derived from the ground truth.
+    A value of swap_ratio=0.01 means that approximately 1% of available
+    non-overlapping adjacent word pairs in the text are swapped.
+    """
+
+    def __init__(self, swap_ratio: float, seed: int):
+        from random import Random
+
+        if not (0.0 <= swap_ratio <= 1.0):
+            raise ValueError("--swap-words values must be in the range [0, 1].")
+
+        self.swap_ratio = swap_ratio
+        self.rng = Random(seed)
+        self.name = f"word-swaps-{format_ratio_for_name(swap_ratio)}"
+
+    @staticmethod
+    def source_text(record):
+        return record["ground_truth"]["transcription_unit"]
+
+    def correct_text(self, sentence, lang):
+        words = sentence.split()
+        if len(words) < 2 or self.swap_ratio <= 0.0:
+            return sentence
+
+        # Non-overlapping adjacent pairs: (0,1), (2,3), (4,5), ...
+        pair_starts = list(range(0, len(words) - 1, 2))
+        n_pairs = len(pair_starts)
+        if n_pairs == 0:
+            return sentence
+
+        n_swaps = int(math.floor(n_pairs * self.swap_ratio))
+        if n_swaps == 0 and self.swap_ratio > 0:
+            n_swaps = 1
+        n_swaps = min(n_swaps, n_pairs)
+
+        chosen_starts = self.rng.sample(pair_starts, n_swaps)
+        for i in chosen_starts:
+            words[i], words[i + 1] = words[i + 1], words[i]
+
+        return " ".join(words)
 
 
 def create_baseline(input_path, output_path, strategy):
@@ -101,11 +159,7 @@ def create_baseline(input_path, output_path, strategy):
 
             record = json.loads(line)
             lang = record["document_metadata"].get("language", "unknown")
-
-            if isinstance(strategy, DummyCorrectCharSwaps):
-                source_text = record["ground_truth"]["transcription_unit"]
-            else:
-                source_text = record["ocr_hypothesis"]["transcription_unit"]
+            source_text = strategy.source_text(record)
 
             record.setdefault("ocr_postcorrection_output", {})["transcription_unit"] = (
                 strategy.correct_text(source_text, lang)
@@ -120,37 +174,86 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Create dummy baseline hypothesis files."
     )
-    parser.add_argument("input_hypothesis", help="Input JSONL file")
-    parser.add_argument("output_dir", help="Output directory")
     parser.add_argument(
-        "--char-swaps",
+        "input_files",
+        nargs="+",
+        help="One or more input JSONL files to process in order.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="baselines.out",
+        help="Output directory for generated baseline files (default: baselines.out).",
+    )
+    parser.add_argument(
+        "--swap-chars",
         type=float,
-        default=None,
+        nargs="+",
+        default=[],
         help=(
-            "Optional proportion of adjacent character pairs to swap in the "
-            "ground-truth text and use as ocr_postcorrection_output "
-            "(e.g. 0.01 for 1%%)."
+            "One or more proportions of non-overlapping adjacent character pairs "
+            "to swap in the ground-truth text, e.g. --swap-chars 0.05 0.1"
+        ),
+    )
+    parser.add_argument(
+        "--swap-words",
+        type=float,
+        nargs="+",
+        default=[],
+        help=(
+            "One or more proportions of non-overlapping adjacent word pairs "
+            "to swap in the ground-truth text, e.g. --swap-words 0.05 0.1"
+        ),
+    )
+    parser.add_argument(
+        "--run-seeds",
+        action="store_true",
+        help=(
+            "Generate run1, run2, and run3 for all swap-based strategies. "
+            "The run number determines the random seed: run1 -> seed 1, "
+            "run2 -> seed 2, run3 -> seed 3. Fixed strategies are written only as run1."
         ),
     )
     return parser.parse_args()
 
 
+def make_run_specs(use_run_seeds: bool):
+    if use_run_seeds:
+        return [("run1", 1), ("run2", 2), ("run3", 3)]
+    return [("run1", 1)]
+
+
 def main():
     args = parse_args()
 
-    input_path = Path(args.input_hypothesis)
+    input_paths = [Path(p) for p in args.input_files]
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    strategies = [cls() for cls in DEFAULT_STRATEGIES]
+    run_specs = make_run_specs(args.run_seeds)
 
-    if args.char_swaps is not None:
-        strategies.append(DummyCorrectCharSwaps(args.char_swaps))
+    for input_path in input_paths:
+        outputs = []
 
-    for strategy in strategies:
-        output_path = output_dir / f"{strategy.name}_{input_path.stem}_run1.jsonl"
-        count = create_baseline(input_path, output_path, strategy)
-        print(f"[{strategy.name}] Wrote {count} records to {output_path}")
+        # Fixed baselines: only run1
+        outputs.append((DummyCorrectPerfect(), "run1"))
+        outputs.append((DummyCorrectNoCorrection(), "run1"))
+
+        for ratio in args.swap_chars:
+            for run_name, seed in run_specs:
+                outputs.append((DummyCorrectCharSwaps(ratio, seed=seed), run_name))
+
+        for ratio in args.swap_words:
+            for run_name, seed in run_specs:
+                outputs.append((DummyCorrectWordSwaps(ratio, seed=seed), run_name))
+
+        for strategy, run_name in outputs:
+            output_path = (
+                output_dir / f"{strategy.name}_{input_path.stem}_{run_name}.jsonl"
+            )
+            count = create_baseline(input_path, output_path, strategy)
+            print(
+                f"[{strategy.name}/{run_name}] Wrote {count} records to {output_path}"
+            )
 
 
 if __name__ == "__main__":

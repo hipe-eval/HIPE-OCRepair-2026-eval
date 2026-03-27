@@ -1,6 +1,9 @@
 {
-  "same": "Example University, City, Country",
-  "random": "Test Institute, City, Country",
-  "charswap10": "Swap 10% Institute, City, Country",
-    "charswap05": "Swap 5% Institute, City, Country"
+  "no-correction": "Example University, City, Country",
+  "perfect": "Test Institute, City, Country",
+  "char-swaps-p05": "Swap 5% char pairs Institute, City, Country",
+  "char-swaps-p10": "Swap 10% char pairs Institute, City, Country",
+  "word-swaps-p05": "Swap 5% word pairs Institute, City, Country",
+  "word-swaps-p10": "Swap 10% word pairs Institute, City, Country"
+
 }
