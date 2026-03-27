@@ -39,10 +39,10 @@ lib/
   score_one.py                # Score a single hypothesis against its reference
   build_rankings.py           # Aggregate per-run scores into ranked TSV files
   build_results_md.py         # Render TSV rankings as a Markdown results page
-  create_dummy_baselines.py   # Generate same/random baselines from reference files
-  competition_config.json     # Official competition cells and design weights
+  create_dummy_baselines.py   # Generate dummy baseline hypotheses from reference files
+  competition_config.json     # Official competition test sets and design weights
   teams.json                  # Team name → institution mapping
-results/                      # Real pipeline output (regenerated; not committed)
+results/                      # Real pipeline output (regenerated)
   per-run/
   system-rankings/
 results-dummy/                # Dummy pipeline output (regenerated; not committed)
@@ -156,9 +156,9 @@ make eval-full-dummy   # clean → generate baselines → score → rankings →
 Step by step:
 
 ```bash
-make baselines-dummy   # Generate same/random baselines in data/systems-dummy/
+make baselines-dummy   # Generate dummy baselines in data/systems-dummy/
 make score-dummy       # Score all files in data/systems-dummy/
-make rankings-dummy    # Build per-cell and overall ranking TSVs in results-dummy/system-rankings/
+make rankings-dummy    # Build per-test-set and overall ranking TSVs in results-dummy/system-rankings/
 make results-md-dummy  # Render HIPE_OCRepair_2026_evaluation_results_dummy.md
 make clean-dummy       # Remove all dummy-pipeline outputs and generated baselines
 ```
@@ -169,22 +169,22 @@ To test against a different set of reference files:
 make eval-full-dummy REFERENCE_DIR_DUMMY=path/to/your/references
 ```
 
-**Two baseline strategies** are generated automatically:
+**Baseline strategies** are generated automatically, including exact-copy and corruption-based variants. Depending on the command used, these may include:
 
-- `same_*_run1.jsonl` — identity baseline (copies OCR input unchanged; expected cMER ≈ raw OCR error rate)
-- `random_*_run1.jsonl` — word-shuffle baseline (The exchange of two random words in each paragraph; expected cMER much higher than the identity baseline)
-
-These baselines check that the scorer is working: `same` should score better than `random` on every cell.
+- `perfect_*_run1.jsonl` — perfect baseline (copies ground truth unchanged; expected cMER = 0)
+- `no-correction_*_run1.jsonl` — identity baseline (copies OCR input unchanged; expected cMER ≈ raw OCR error rate)
+- `char-swaps-*` — corruption baseline that swaps a specified proportion of adjacent character pairs in the ground truth
+- `word-swaps-*` — corruption baseline that swaps a specified proportion of adjacent word pairs in the ground truth
 
 ### Metrics and rankings
 
 Primary metrics are based on **character-level Match Error Rate (cMER)**:
 
-$$\text{MER} = \frac{S + D + I}{H + S + D + I}$$
+$$\text{cMER} = \frac{S + D + I}{H + S + D + I}$$
 
-where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions. Unlike standard CER/WER, MER is bounded in \([0,1]\), because insertions are included in the denominator.
+where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions on the level of characters. Unlike standard CER/WER, MER is bounded in \([0,1]\), because insertions are included in the denominator.
 
-Before scoring, texts are normalized as follows:
+Before scoring in normalized setup, texts are normalized as follows:
 
 - lowercased
 - punctuation and other non-word characters replaced by spaces
@@ -201,14 +201,14 @@ Each test dataset consists of a set of **transcription units**. All metrics are 
 
 For each dataset, the scorer reports:
 
-- **`cmer_micro`**: character-level MER obtained by pooling alignment counts across all transcription units in the dataset and computing MER once from the pooled totals
-- **`cmer_macro`**: arithmetic mean of the transcription-unit-level cMER scores within the dataset
-- **`wmer_micro`** and **`wmer_macro`**: analogous word-level metrics
+- **`cmer_micro`**: character-level MER obtained by summing alignment counts across all transcription units in the dataset and computing cMER once from the summed totals within a test set
+- **`cmer_macro`**: arithmetic mean of the transcription-unit-level cMER scores within a test set
+- **`wmer_micro`** and **`wmer_macro`**  are computed in the same way as cmer_micro and cmer_macro, but using word-level alignments produced by jiwer.process_words(...) after normalization. Here, hits, substitutions, deletions, and insertions are counted over aligned word sequences rather than character sequences.
 
 In other words:
 
-- **micro** aggregation gives more weight to longer transcription units
-- **macro** aggregation gives equal weight to each transcription unit
+- **micro** aggregation gives more weight to longer transcription units in a test set
+- **macro** aggregation gives equal weight to each transcription unit in a test set
 
 #### Preference-based secondary metrics
 
@@ -225,12 +225,63 @@ For each transcription unit, the preference score is:
 
 These scores are then averaged across transcription units, so they are **macro** metrics.
 
-The scorer also reports:
+#### Metric definitions used in the reports
 
-- **`pcis_cmer_macro`**
-- **`pcis_wmer_macro`**
+The evaluation reports show the following metrics:
 
-These are macro-averaged relative improvement scores computed per transcription unit against the raw OCR baseline.
+- **`cmer_micro`**: micro-averaged character-level Match Error Rate
+- **`cmer_macro`**: macro-averaged character-level Match Error Rate
+- **`wmer_micro`**: micro-averaged word-level Match Error Rate
+- **`wmer_macro`**: macro-averaged word-level Match Error Rate
+- **`pref_score_cmer_macro`**: macro-averaged preference score comparing system cMER to raw OCR cMER
+- **`pref_score_wmer_macro`**: macro-averaged preference score comparing system wMER to raw OCR wMER
+
+At the transcription-unit level, MER is defined as:
+
+$$
+\mathrm{MER} = \frac{S + D + I}{H + S + D + I}
+$$
+
+where \(H\) = hits, \(S\) = substitutions, \(D\) = deletions, and \(I\) = insertions.
+
+For a dataset with transcription units \(i = 1, \dots, N\):
+
+$$
+\mathrm{cMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{cMER}_i
+$$
+
+$$
+\mathrm{wMER}_{\mathrm{macro}} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{wMER}_i
+$$
+
+$$
+\mathrm{cMER}_{\mathrm{micro}} = \frac{\sum_i S_i + \sum_i D_i + \sum_i I_i}{\sum_i H_i + \sum_i S_i + \sum_i D_i + \sum_i I_i}
+$$
+
+$$
+\mathrm{wMER}_{\mathrm{micro}} = \frac{\sum_i S_i + \sum_i D_i + \sum_i I_i}{\sum_i H_i + \sum_i S_i + \sum_i D_i + \sum_i I_i}
+$$
+
+The preference score for one transcription unit is:
+
+$$
+\mathrm{pref}(i) =
+\begin{cases}
+1 & \text{if the system score is better than the raw OCR score} \\
+0 & \text{if both scores are equal} \\
+-1 & \text{if the system score is worse than the raw OCR score}
+\end{cases}
+$$
+
+The reported preference metrics are macro averages over transcription units:
+
+$$
+\mathrm{pref\_score\_cmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{cmer}}(i)
+$$
+
+$$
+\mathrm{pref\_score\_wmer\_macro} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref}_{\mathrm{wmer}}(i)
+$$
 
 #### Per-dataset scores and overall averages
 
@@ -282,8 +333,8 @@ Thus, the three DTA test sets together contribute the same total weight as one o
 
 | Unversioned dataset identifier | Lang | Weight |
 | ------------------------------ | ---- | ------ |
-| `icdar2017                     | en   | 1      |
-| `impresso-snippets             | en   | 1      |
+| `icdar2017`                    | en   | 1      |
+| `impresso-snippets`            | en   | 1      |
 
 | Unversioned dataset identifier | Lang | Weight |
 | ------------------------------ | ---- | ------ |
@@ -313,6 +364,6 @@ This means in terms of unversioned datasets:
 
 - for **English**, the language score is the mean over `icdar2017` and `impresso-snippets`
 - for **French**, the language score is the mean over `icdar2017` and `impresso-snippets`
-- for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l11`, and `dta19-l2` with weight `1/3` each
+  - for **German**, the language score is computed from `impresso-snippets` with weight `1` and from `dta19-l0`, `dta19-l1`, and `dta19-l2` with weight `1/3` each
 
 As in the overall ranking, these language-level rankings are based on weighted combinations of **per-test-set scores**. They should not be confused with the scorer’s internal notions of **micro** and **macro**, which refer to aggregation over transcription units within a dataset.
