@@ -20,10 +20,11 @@ The repository is designed to ensure transparent and reproducible evaluation of 
 
 ### Task
 
-The shared task focuses on OCR post-correction for historical documents. Participants develop systems that automatically correct OCR errors in historical text paragraphs. Correction is performed at the paragraph level rather than line by line, allowing for more global corrections.
+The shared task focuses on OCR post-correction for historical documents. Participants develop systems that automatically correct OCR errors in historical text transcription units that are larger than a single line. Depending on the dataset, a transcription unit may correspond to a paragraph, article, page, or semantic chunk, allowing systems to make more global corrections than line-level post-correction.
 
-System outputs are evaluated against gold-standard reference data using the official
-evaluation scorer that includes some normalization to the reference and hypothesis texts.
+Inputs include the OCR text to correct together with document metadata used for matching and contextualisation.
+
+System outputs are evaluated against gold-standard reference data using the official evaluation scorer, which applies a light normalization to the reference and hypothesis texts before scoring.
 
 ### Repository structure
 
@@ -74,6 +75,7 @@ pip install --upgrade -r requirements.txt
 #### To run the evaluation
 
 ```bash
+make validate-submissions # Validate files in data/systems/ against the official JSON schema
 make eval-full          # Score submissions, build rankings and results MD
 make eval-full-refresh  # Remove all derived files and re-run from scratch
 ```
@@ -82,7 +84,9 @@ Run `make` to see all available targets.
 
 ### Submission format
 
-Submission files are JSONL files (one JSON object per line). Each submission record must contain the following fields:
+Submission files are JSONL files (one JSON object per line). Teams submit them by email. After an organizer-side format check, validated submissions are added to this repository under `data/systems/`, and team metadata is updated in `lib/teams.json`.
+
+Each team submission record must contain the following fields:
 
 Unlike reference files, submission files do not contain a `ground_truth` field.
 
@@ -101,6 +105,13 @@ Unlike reference files, submission files do not contain a `ground_truth` field.
   }
 }
 ```
+
+For team submissions, the only field that is evaluated as system output is `ocr_postcorrection_output.transcription_unit`. The `document_metadata` fields are used to identify and match records, and the OCR hypothesis is kept as provided in the released test files.
+
+Submission files should validate against the official JSON schema:
+
+- Schema: https://github.com/hipe-eval/HIPE-OCRepair-2026-data/blob/main/schema/hipe-ocrepair.schema.json
+- Local check in this repository: `make validate-submissions`
 
 **File naming convention:**
 A submission filename is formed by prepending your team name and appending a run suffix to the reference filename:
@@ -140,6 +151,14 @@ Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_de_run1.js
 
 All submission files will be placed in `data/systems/`.
 
+Only the following datasets are part of the official shared-task evaluation in this repository:
+
+- `icdar2017` (`en`, `fr`)
+- `impresso-snippets` (`de`, `en`, `fr`)
+- `dta19-l0`, `dta19-l1`, `dta19-l2` (`de`)
+
+`impresso-nzz` and `overproof-combined` are benchmark datasets, but they are never part of the official shared-task evaluation or rankings in this repository.
+
 ### Dry-run with dummy data
 
 Before real submissions arrive, you can test the full pipeline end-to-end using synthetic baselines generated from the reference files in `data/reference-dummy/`.
@@ -177,7 +196,7 @@ make eval-full-dummy REFERENCE_DIR_DUMMY=path/to/your/references
 
 The primary evaluation metric is **character-level Match Error Rate (cMER)**. Secondary metrics include word-level MER and preference-based comparison scores against the raw OCR baseline.
 
-Before scoring with normalization enabled, texts are normalized as follows:
+Before scoring, texts are normalized using a light IR-style normalization that roughly mimics what an indexing and retrieval system would apply:
 
 - lowercased
 - punctuation and other non-word characters replaced by spaces
@@ -331,7 +350,7 @@ Thus, the three DTA test sets together contribute the same total weight as one o
 | `icdar2017`                    | fr   | 1      |
 | `impresso-snippets`            | fr   | 1      |
 
-`impresso-nzz` and `overproof-combined` datasets do not contribute to the official rankings because they have been released earlier to the public.
+`impresso-nzz` and `overproof-combined` are not part of the official shared-task evaluation in this repository and therefore do not contribute to the official rankings.
 
 #### Per-language rankings
 

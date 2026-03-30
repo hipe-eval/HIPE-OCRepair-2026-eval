@@ -18,6 +18,7 @@ RESULTS_MD_DUMMY       := HIPE_OCRepair_2026_evaluation_results_dummy.md
 DUMMY_BASELINE_SWAP_CHARS ?= 0.05 0.1
 DUMMY_BASELINE_SWAP_WORDS ?= 0.01 0.05
 DUMMY_BASELINE_RUN_SEEDS  ?= --run-seeds
+SCHEMA_PATH         ?=
 
 TEAMS_JSON         := lib/teams.json
 COMPETITION_CONFIG := lib/competition_config.json
@@ -54,6 +55,14 @@ baselines-dummy: | $(SUBMISSIONS_DUMMY_DIR)
 
 .PHONY: score
 score: $(PER_RUN_JSONS)
+
+.PHONY: validate-submissions
+validate-submissions:
+	$(PYTHON) lib/validate_submissions.py --input-dir $(SUBMISSIONS_DIR) $(if $(SCHEMA_PATH),--schema $(SCHEMA_PATH),)
+
+.PHONY: validate-submissions-dummy
+validate-submissions-dummy:
+	$(PYTHON) lib/validate_submissions.py --input-dir $(SUBMISSIONS_DUMMY_DIR) $(if $(SCHEMA_PATH),--schema $(SCHEMA_PATH),)
 
 .PHONY: score-dummy
 score-dummy: | $(PER_RUN_DIR_DUMMY)
@@ -114,11 +123,13 @@ help:
 	@echo ""
 	@echo "Dummy pipeline step-by-step (all output under results-dummy/):"
 	@echo "  baselines-dummy    Generate dummy baselines from $(REFERENCE_DIR_DUMMY) into $(SUBMISSIONS_DUMMY_DIR)"
+	@echo "  validate-submissions-dummy  Validate dummy submissions against the JSON schema"
 	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
 	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
 	@echo ""
 	@echo "Real pipeline step-by-step (all output under results/):"
+	@echo "  validate-submissions  Validate real submissions in $(SUBMISSIONS_DIR) against the JSON schema"
 	@echo "  score              Score real submissions in $(SUBMISSIONS_DIR) (incremental)"
 	@echo "  rankings           Build ranking TSVs from scored real submissions"
 	@echo "  results-md         Render $(RESULTS_MD)"
@@ -130,6 +141,7 @@ help:
 	@echo "Override variables:"
 	@echo "  REFERENCE_DIR        Real reference JSONL directory     (default: data/reference)"
 	@echo "  REFERENCE_DIR_DUMMY  Dummy reference JSONL directory    (default: data/reference-dummy)"
+	@echo "  SCHEMA_PATH          Optional JSON schema override      (default: scorer built-in schema)"
 	@echo "  SUBMISSIONS_DUMMY_DIR  Dummy hypothesis directory       (default: $(SUBMISSIONS_DUMMY_DIR))"
 	@echo "  DUMMY_BASELINE_SWAP_CHARS  Character swap ratios        (default: $(DUMMY_BASELINE_SWAP_CHARS))"
 	@echo "  DUMMY_BASELINE_SWAP_WORDS  Word swap ratios             (default: $(DUMMY_BASELINE_SWAP_WORDS))"
