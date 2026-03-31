@@ -46,23 +46,24 @@ def fmt(val, precision: int = 4) -> str:
 def parse_tsv_filename(name: str) -> dict | None:
     """Parse ranking-<dataset>-<split>-<language>-cmer-micro.tsv.
 
-    Handles datasets with hyphens (e.g. impresso-snippets) by splitting
-    from the right: last two hyphen-separated tokens are language and split.
+    Supports split names with hyphens such as masked-test.
     """
-    m = re.match(r"^ranking-(.+)-cmer-micro$", Path(name).stem)
+    m = re.match(
+        r"^ranking-(?P<dataset>.+)-(?P<split>train|dev|test|masked-test)-"
+        r"(?P<language>[a-z]{2})-cmer-micro$",
+        Path(name).stem,
+    )
     if not m:
         return None
-    inner = m.group(1)
-    parts = inner.rsplit("-", 2)
-    if len(parts) != 3:
-        return None
-    dataset, split, language = parts
-    return {"dataset": dataset, "split": split, "language": language}
+    return m.groupdict()
 
 
 def parse_overall_tsv_filename(name: str) -> dict | None:
     """Parse ranking-overall-<split>-weighted.tsv."""
-    m = re.match(r"^ranking-overall-(?P<split>[^-]+)-weighted$", Path(name).stem)
+    m = re.match(
+        r"^ranking-overall-(?P<split>train|dev|test|masked-test)-weighted$",
+        Path(name).stem,
+    )
     if not m:
         return None
     return {"split": m.group("split")}
@@ -71,7 +72,8 @@ def parse_overall_tsv_filename(name: str) -> dict | None:
 def parse_language_tsv_filename(name: str) -> dict | None:
     """Parse ranking-language-<lang>-<split>-weighted.tsv."""
     m = re.match(
-        r"^ranking-language-(?P<language>[^-]+)-(?P<split>[^-]+)-weighted$",
+        r"^ranking-language-(?P<language>[^-]+)-"
+        r"(?P<split>train|dev|test|masked-test)-weighted$",
         Path(name).stem,
     )
     if not m:
@@ -124,7 +126,10 @@ def build_overall_ranking_table(rows: list[dict]) -> list[str]:
         "| Rank | System | Overall cMER ↓ | 95% CI\u00b9 | Overall Pref Macro ↑ |"
         " 95% CI\u00b9 | Test sets |"
     )
-    sep = "|------|--------|----------------|---------|----------------------|---------|----------|"
+    sep = (
+        "|------|--------|----------------|---------|----------------------|"
+        "---------|----------|"
+    )
     lines = [header, sep]
     for row in rows:
         rank = row.get("rank", "")
@@ -149,7 +154,10 @@ def build_language_ranking_table(rows: list[dict]) -> list[str]:
         "| Rank | System | Language cMER ↓ | 95% CI\u00b9 | Language Pref Macro ↑ |"
         " 95% CI\u00b9 | Test sets |"
     )
-    sep = "|------|--------|-----------------|---------|----------------------|---------|----------|"
+    sep = (
+        "|------|--------|-----------------|---------|----------------------|"
+        "---------|----------|"
+    )
     lines = [header, sep]
     for row in rows:
         rank = row.get("rank", "")
@@ -230,7 +238,13 @@ def main() -> None:
         f"- **Benchmark**: hipe-ocrepair-bench {args.data_version}",
         "",
         "System names follow the pattern:  ",
-        "`<teamname>_hipe-ocrepair-bench_<version>_<dataset>_<split>_<language>_run<N>`",
+        (
+            "`<teamname>_hipe-ocrepair-bench_<version>_<dataset>_<split>_"
+            "<language>_run<N>`"
+        ),
+        "",
+        "For official submissions, `<split>` in system filenames is `masked-test`;",
+        "matching reference files in `data/reference/` use `test`.",
         "",
         (
             "**Primary metric**: overall micro-cMER — weighted mean of per-test-set"
@@ -270,6 +284,7 @@ def main() -> None:
         )
         lines.append("")
         for tsv_path, meta in sorted(overall_tsvs, key=lambda x: x[1]["split"]):
+            assert meta is not None
             split = meta["split"]
             lines.append(f"### Overall — {split} split\n")
             with open(tsv_path, encoding="utf-8") as f:
@@ -299,6 +314,7 @@ def main() -> None:
         for tsv_path, meta in sorted(
             language_tsvs, key=lambda x: (x[1]["split"], x[1]["language"])
         ):
+            assert meta is not None
             split = meta["split"]
             lang = meta["language"]
             lang_name = LANGUAGE_NAMES.get(lang, lang.upper())
@@ -320,6 +336,7 @@ def main() -> None:
         for tsv_path, meta in sorted(
             dataset_groups[dataset], key=lambda x: x[1]["language"]
         ):
+            assert meta is not None
             lang = meta["language"]
             split = meta["split"]
             lang_name = LANGUAGE_NAMES.get(lang, lang.upper())

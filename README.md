@@ -114,13 +114,18 @@ Submission files should validate against the official JSON schema:
 - Local check in this repository: `make validate-submissions`
 
 **File naming convention:**
-A submission filename is formed by prepending your team name and appending a run suffix to the reference filename:
+A submission filename is formed by prepending your team name and appending a run suffix to the corresponding released masked test filename:
 
 ```
 <teamname>_<reference-stem>_run<N>.jsonl
 ```
 
 where `<reference-stem>` is the reference file's name without the `.jsonl` extension, and `run<N>` ∈ `{run1, run2, run3}`.
+
+For this repository, the split component follows this policy:
+
+- files in `data/reference/` use `<split> = test` because they contain the ground truth
+- files in `data/systems/` use `<split> = masked-test` because they are based on the masked test release sent to participants
 
 Expanded, this gives:
 
@@ -131,7 +136,7 @@ Expanded, this gives:
 - `<teamname>`: lowercase alphanumeric characters and hyphens only — **no underscores**
 - `<bench-version>`: benchmark version, currently `v0.9`
 - `<dataset>_<dataset-version>`: exact versioned dataset identifier — see table below
-- `<split>`: split identifier from the reference filename (currently `test` for official submissions)
+- `<split>`: `masked-test` for participant submission files in `data/systems/`; the matching files in `data/reference/` use `test`
 - `<language>`: `en`, `de`, or `fr`
 - `run<N>`: `run1`, `run2`, or `run3` — up to 3 runs per reference file per team
 
@@ -147,7 +152,9 @@ The exact versioned dataset identifiers are:
 | dta19 (level 2)   | `dta19-l2_v0.1`              | de          |
 | overproof         | `overproof-combined_v1.0`    | en          |
 
-Example: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_de_run1.jsonl`
+Example submission file: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1.jsonl`
+
+Matching reference file in `data/reference/`: `hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_de.jsonl`
 
 All submission files will be placed in `data/systems/`.
 

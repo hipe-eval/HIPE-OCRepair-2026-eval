@@ -6,8 +6,8 @@ The reference file is derived from the hypothesis filename by:
   2. Stripping the <teamname>_ prefix
 
 Example:
-  team1_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1.jsonl
-  -> hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de.jsonl
+    team1_hipe-ocrepair-bench_v0.9_impresso-snippets_masked-test_de_run1.jsonl
+    -> hipe-ocrepair-bench_v0.9_impresso-snippets_test_de.jsonl
 
 Usage:
     python lib/score_one.py \\
@@ -43,12 +43,13 @@ def load_jsonl(path: Path) -> list[dict]:
 def derive_reference_stem(hypothesis_path: Path) -> str:
     """Derive reference file stem from a hypothesis filename.
 
-    e.g. team1_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1
-      -> hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de
+    e.g. team1_hipe-ocrepair-bench_v0.9_impresso-snippets_masked-test_de_run1
+      -> hipe-ocrepair-bench_v0.9_impresso-snippets_test_de
     """
     stem = hypothesis_path.stem
     stem = re.sub(r"_run\d+$", "", stem, flags=re.IGNORECASE)
     stem = re.sub(r"^[^_]+_", "", stem)
+    stem = re.sub(r"_masked-test_", "_test_", stem, flags=re.IGNORECASE)
     return stem
 
 
@@ -107,6 +108,7 @@ def main() -> None:
 
     results = Evaluation(merged).score_over_datasets(normalize=True)
     results = round_scores(results)
+    assert isinstance(results, dict)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:

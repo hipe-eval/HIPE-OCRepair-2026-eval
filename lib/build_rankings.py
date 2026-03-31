@@ -32,7 +32,7 @@ HYPO_PATTERN = re.compile(
     r"^(?P<teamname>[^_]+)_"
     r"hipe-ocrepair-bench_(?P<version>[^_]+)_"
     r"(?P<dataset>.+)_"
-    r"(?P<split>train|dev|test)_(?P<language>[a-z]{2})_"
+    r"(?P<split>train|dev|test|masked-test)_(?P<language>[a-z]{2})_"
     r"(?P<run>run\d+)$",
     re.IGNORECASE,
 )
@@ -118,7 +118,8 @@ def main() -> None:
     # Overall ranking: split -> {system_key -> {(dataset, language) -> metrics}}
     # Only competition cells are tracked (if config provided).
     overall: dict[str, dict] = defaultdict(lambda: defaultdict(dict))
-    # Per-language ranking: split -> language -> {system_key -> {(dataset, language) -> metrics}}
+    # Per-language ranking:
+    # split -> language -> {system_key -> {(dataset, language) -> metrics}}
     per_language: dict[str, dict] = defaultdict(
         lambda: defaultdict(lambda: defaultdict(dict))
     )
