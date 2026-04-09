@@ -8,6 +8,7 @@ SUBMISSIONS_DIR        ?= data/systems
 PER_RUN_DIR            := results/per-run
 RANKINGS_DIR           := results/system-rankings
 RESULTS_MD             := HIPE_OCRepair_2026_evaluation_results.md
+TEXT_VIEWS_DIR         := results/text-views
 
 # --- Dummy pipeline paths (isolated from real pipeline) ---
 REFERENCE_DIR_DUMMY    ?= data/reference-dummy
@@ -15,6 +16,7 @@ SUBMISSIONS_DUMMY_DIR  ?= data/systems-dummy
 PER_RUN_DIR_DUMMY      := results-dummy/per-run
 RANKINGS_DIR_DUMMY     := results-dummy/system-rankings
 RESULTS_MD_DUMMY       := HIPE_OCRepair_2026_evaluation_results_dummy.md
+TEXT_VIEWS_DIR_DUMMY   := results-dummy/text-views
 DUMMY_BASELINE_SWAP_CHARS ?= 0.05 0.1
 DUMMY_BASELINE_SWAP_WORDS ?= 0.01 0.05
 DUMMY_BASELINE_RUN_SEEDS  ?= --run-seeds
@@ -34,15 +36,19 @@ $(PER_RUN_DIR):
 	mkdir -p $@
 $(RANKINGS_DIR):
 	mkdir -p $@
+$(TEXT_VIEWS_DIR):
+	mkdir -p $@
 $(PER_RUN_DIR_DUMMY):
 	mkdir -p $@
 $(RANKINGS_DIR_DUMMY):
+	mkdir -p $@
+$(TEXT_VIEWS_DIR_DUMMY):
 	mkdir -p $@
 $(SUBMISSIONS_DUMMY_DIR):
 	mkdir -p $@
 
 $(PER_RUN_DIR)/%.json: $(SUBMISSIONS_DIR)/%.jsonl | $(PER_RUN_DIR)
-	$(PYTHON) lib/score_one.py --hypothesis $< --reference-dir $(REFERENCE_DIR) --output $@
+	$(PYTHON) lib/score_one.py --hypothesis $< --reference-dir $(REFERENCE_DIR) --output $@ --log-file $@.log
 
 .PHONY: baselines-dummy
 baselines-dummy: | $(SUBMISSIONS_DUMMY_DIR)
@@ -53,8 +59,23 @@ baselines-dummy: | $(SUBMISSIONS_DUMMY_DIR)
 		$(DUMMY_BASELINE_RUN_SEEDS) \
 		$(REFERENCE_FILES_DUMMY)
 
+.PHONY: baseline-no-correction
+baseline-no-correction: | $(SUBMISSIONS_DIR)
+	$(PYTHON) lib/create_dummy_baselines.py \
+		$(REFERENCE_FILES) \
+		--output-dir $(SUBMISSIONS_DIR) \
+		--strategies baseline-no-correction \
+		
+
 .PHONY: score
 score: $(PER_RUN_JSONS)
+
+.PHONY: export-text-views
+export-text-views: | $(TEXT_VIEWS_DIR)
+	for f in $(SUBMISSIONS_DIR)/*.jsonl; do \
+		stem=$$(basename $$f .jsonl); \
+		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR) --output-prefix $(TEXT_VIEWS_DIR)/$$stem --log-file $(TEXT_VIEWS_DIR)/$$stem.log; \
+	done
 
 .PHONY: validate-submissions
 validate-submissions:
@@ -68,7 +89,14 @@ validate-submissions-dummy:
 score-dummy: | $(PER_RUN_DIR_DUMMY)
 	for f in $(SUBMISSIONS_DUMMY_DIR)/*.jsonl; do \
 		stem=$$(basename $$f .jsonl); \
-		$(PYTHON) lib/score_one.py --hypothesis $$f --reference-dir $(REFERENCE_DIR_DUMMY) --output $(PER_RUN_DIR_DUMMY)/$$stem.json; \
+		$(PYTHON) lib/score_one.py --hypothesis $$f --reference-dir $(REFERENCE_DIR_DUMMY) --output $(PER_RUN_DIR_DUMMY)/$$stem.json --log-file $(PER_RUN_DIR_DUMMY)/$$stem.json.log; \
+	done
+
+.PHONY: export-text-views-dummy
+export-text-views-dummy: | $(TEXT_VIEWS_DIR_DUMMY)
+	for f in $(SUBMISSIONS_DUMMY_DIR)/*.jsonl; do \
+		stem=$$(basename $$f .jsonl); \
+		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR_DUMMY) --output-prefix $(TEXT_VIEWS_DIR_DUMMY)/$$stem --log-file $(TEXT_VIEWS_DIR_DUMMY)/$$stem.log; \
 	done
 
 .PHONY: rankings
@@ -124,12 +152,15 @@ help:
 	@echo "Dummy pipeline step-by-step (all output under results-dummy/):"
 	@echo "  baselines-dummy    Generate dummy baselines from $(REFERENCE_DIR_DUMMY) into $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  validate-submissions-dummy  Validate dummy submissions against the JSON schema"
+	@echo "  export-text-views-dummy  Export aligned orig/gth/cor multiline text files"
 	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
 	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
 	@echo ""
 	@echo "Real pipeline step-by-step (all output under results/):"
 	@echo "  validate-submissions  Validate real submissions in $(SUBMISSIONS_DIR) against the JSON schema"
+	@echo "  baseline-no-correction  Generate no-correction baseline from real reference files"
+	@echo "  export-text-views  Export aligned orig/gth/cor multiline text files"
 	@echo "  score              Score real submissions in $(SUBMISSIONS_DIR) (incremental)"
 	@echo "  rankings           Build ranking TSVs from scored real submissions"
 	@echo "  results-md         Render $(RESULTS_MD)"

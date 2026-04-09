@@ -84,6 +84,17 @@ def weighted_mean(value_weight_pairs) -> float | None:
     return sum(v * w for v, w in pairs) / total_w
 
 
+def round_row(row: dict, decimals: int = 4) -> dict:
+    """Round all numeric values in a row dict to specified decimal places."""
+    rounded = {}
+    for key, value in row.items():
+        if isinstance(value, float):
+            rounded[key] = round(value, decimals)
+        else:
+            rounded[key] = value
+    return rounded
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build TSV ranking files from per-run score JSONs."
@@ -191,7 +202,7 @@ def main() -> None:
             )
             writer.writeheader()
             for rank, row in enumerate(rows, 1):
-                writer.writerow({"rank": rank, **row})
+                writer.writerow(round_row({"rank": rank, **row}))
 
         print(f"Written: {tsv_path} ({len(rows)} systems)", file=sys.stderr)
 
@@ -277,7 +288,7 @@ def main() -> None:
             )
             writer.writeheader()
             for rank, row in enumerate(rows, 1):
-                writer.writerow({"rank": rank, **row})
+                writer.writerow(round_row({"rank": rank, **row}))
 
         print(
             f"Written: {tsv_path} ({len(rows)} systems, {n_total} test sets)",
@@ -374,7 +385,7 @@ def main() -> None:
                 )
                 writer.writeheader()
                 for rank, row in enumerate(rows, 1):
-                    writer.writerow({"rank": rank, **row})
+                    writer.writerow(round_row({"rank": rank, **row}))
 
             print(
                 f"Written: {tsv_path} ({len(rows)} systems, {n_total} test sets)",

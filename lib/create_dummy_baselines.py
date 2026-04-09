@@ -45,7 +45,7 @@ class DummyCorrectNoCorrection:
     """No-correction baseline: copies the OCR hypothesis unchanged."""
 
     def __init__(self):
-        self.name = "no-correction"
+        self.name = "baseline-no-correction"
 
     @staticmethod
     def source_text(record):
@@ -149,10 +149,12 @@ class DummyCorrectWordSwaps:
 
 def create_baseline(input_path, output_path, strategy):
     """Apply a correction strategy to each record and write the result."""
+    print(f"  Reading from: {input_path}")
     count = 0
     with open(input_path, "r", encoding="utf-8") as fin, open(
         output_path, "w", encoding="utf-8"
     ) as fout:
+        print(f"  Writing to:   {output_path}")
         for line in fin:
             if not line.strip():
                 continue
@@ -213,6 +215,17 @@ def parse_args():
             "run2 -> seed 2, run3 -> seed 3. Fixed strategies are written only as run1."
         ),
     )
+    parser.add_argument(
+        "--strategies",
+        nargs="+",
+        choices=["perfect", "baseline-no-correction", "char-swaps", "word-swaps"],
+        default=None,
+        help=(
+            "Specific strategies to generate. If not specified, generates all "
+            "configured strategies based on other flags. Choices: perfect, "
+            "baseline-no-correction, char-swaps, word-swaps."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -231,24 +244,33 @@ def main():
 
     run_specs = make_run_specs(args.run_seeds)
 
+    # Determine which strategies to generate
+    strategies_filter = set(args.strategies) if args.strategies else None
+
     for input_path in input_paths:
         outputs = []
 
         # Fixed baselines: only run1
-        outputs.append((DummyCorrectPerfect(), "run1"))
-        outputs.append((DummyCorrectNoCorrection(), "run1"))
+        if strategies_filter is None or "perfect" in strategies_filter:
+            outputs.append((DummyCorrectPerfect(), "run1"))
+        if strategies_filter is None or "baseline-no-correction" in strategies_filter:
+            outputs.append((DummyCorrectNoCorrection(), "run1"))
 
-        for ratio in args.swap_chars:
-            for run_name, seed in run_specs:
-                outputs.append((DummyCorrectCharSwaps(ratio, seed=seed), run_name))
+        if strategies_filter is None or "char-swaps" in strategies_filter:
+            for ratio in args.swap_chars:
+                for run_name, seed in run_specs:
+                    outputs.append((DummyCorrectCharSwaps(ratio, seed=seed), run_name))
 
-        for ratio in args.swap_words:
-            for run_name, seed in run_specs:
-                outputs.append((DummyCorrectWordSwaps(ratio, seed=seed), run_name))
+        if strategies_filter is None or "word-swaps" in strategies_filter:
+            for ratio in args.swap_words:
+                for run_name, seed in run_specs:
+                    outputs.append((DummyCorrectWordSwaps(ratio, seed=seed), run_name))
 
         for strategy, run_name in outputs:
+            # Insert "masked-" before "test" in the stem
+            modified_stem = input_path.stem.replace("_test_", "_masked-test_")
             output_path = (
-                output_dir / f"{strategy.name}_{input_path.stem}_{run_name}.jsonl"
+                output_dir / f"{strategy.name}_{modified_stem}_{run_name}.jsonl"
             )
             count = create_baseline(input_path, output_path, strategy)
             print(

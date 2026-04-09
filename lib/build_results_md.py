@@ -13,7 +13,7 @@ import json
 import os
 import re
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 LANGUAGE_NAMES = {
@@ -94,6 +94,23 @@ def build_team_key_table(teams: dict) -> list[str]:
     return lines
 
 
+def split_complete_incomplete(rows: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Split rows into complete (all test sets) and incomplete systems."""
+    complete = []
+    incomplete = []
+    for row in rows:
+        n = row.get("n_test_sets", "")
+        n_total = row.get("n_total_test_sets", "")
+        try:
+            if n and n_total and int(n) == int(n_total):
+                complete.append(row)
+            else:
+                incomplete.append(row)
+        except (ValueError, TypeError):
+            incomplete.append(row)
+    return complete, incomplete
+
+
 def build_ranking_table(rows: list[dict]) -> list[str]:
     header = (
         "| Rank | System | cMER micro ↓ | 95% CI | Pref cMER Macro ↑ | 95% CI |"
@@ -123,7 +140,7 @@ def build_ranking_table(rows: list[dict]) -> list[str]:
     return lines
 
 
-def build_overall_ranking_table(rows: list[dict]) -> list[str]:
+def build_overall_ranking_table(rows: list[dict], rerank: bool = False) -> list[str]:
     header = (
         "| Rank | System | Overall cMER ↓ | 95% CI\u00b9 | Overall Pref Macro ↑ |"
         " 95% CI\u00b9 | Test sets |"
@@ -134,7 +151,7 @@ def build_overall_ranking_table(rows: list[dict]) -> list[str]:
     )
     lines = [header, sep]
     for row in rows:
-        rank = row.get("rank", "")
+        rank = "—" if rerank else row.get("rank", "")
         system = row.get("system", "")
         cmer = fmt(row.get("overall_cmer"))
         ci = f"[{fmt(row.get('overall_cmer_lo'))}, {fmt(row.get('overall_cmer_hi'))}]"
@@ -151,7 +168,7 @@ def build_overall_ranking_table(rows: list[dict]) -> list[str]:
     return lines
 
 
-def build_language_ranking_table(rows: list[dict]) -> list[str]:
+def build_language_ranking_table(rows: list[dict], rerank: bool = False) -> list[str]:
     header = (
         "| Rank | System | Language cMER ↓ | 95% CI\u00b9 | Language Pref Macro ↑ |"
         " 95% CI\u00b9 | Test sets |"
@@ -162,7 +179,7 @@ def build_language_ranking_table(rows: list[dict]) -> list[str]:
     )
     lines = [header, sep]
     for row in rows:
-        rank = row.get("rank", "")
+        rank = "—" if rerank else row.get("rank", "")
         system = row.get("system", "")
         cmer = fmt(row.get("language_cmer"))
         ci = f"[{fmt(row.get('language_cmer_lo'))}, {fmt(row.get('language_cmer_hi'))}]"
@@ -200,8 +217,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--date",
-        default=str(date.today()),
-        help="Evaluation date (YYYY-MM-DD).",
+        default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        help="Evaluation date and time (YYYY-MM-DD HH:MM:SS).",
     )
     args = parser.parse_args()
 
@@ -235,7 +252,7 @@ def main() -> None:
 
     lines: list[str] = [
         "# HIPE-OCRepair 2026 – Evaluation Results\n",
-        f"- **Date**: {args.date}",
+        f"- **Generated**: {args.date}",
         f"- **Scorer**: hipe-ocrepair-scorer v{args.scorer_version}",
         f"- **Benchmark**: hipe-ocrepair-bench {args.data_version}",
         "",
@@ -296,14 +313,27 @@ def main() -> None:
             with open(tsv_path, encoding="utf-8") as f:
                 rows = list(csv.DictReader(f, delimiter="\t"))
             if rows:
-                lines.extend(build_overall_ranking_table(rows))
-                lines.append("")
+                complete, incomplete = split_complete_incomplete(rows)
+                if complete:
+                    lines.extend(build_overall_ranking_table(complete, rerank=False))
+                    lines.append("")
+                if incomplete:
+                    lines.append("#### Systems with incomplete test set coverage\n")
+                    lines.append(
+                        "_Systems that have not processed all test sets are shown "
+                        "separately and not included in the official ranking._\n"
+                    )
+                    lines.extend(build_overall_ranking_table(incomplete, rerank=True))
+                    lines.append("")
                 tsv_rel = os.path.relpath(tsv_path, output_path.parent)
                 lines.append(f"See [{tsv_path.name}]({tsv_rel}) for full details.\n")
             else:
                 lines.append("_No results available._\n")
 
     # --- Per-language weighted rankings ---
+    # Track systems with complete language coverage
+    complete_systems_by_language = {}
+
     if language_tsvs:
         lines.append("## Per-language rankings\n")
         lines.append(
@@ -328,8 +358,25 @@ def main() -> None:
             with open(tsv_path, encoding="utf-8") as f:
                 rows = list(csv.DictReader(f, delimiter="\t"))
             if rows:
-                lines.extend(build_language_ranking_table(rows))
-                lines.append("")
+                complete, incomplete = split_complete_incomplete(rows)
+
+                # Track complete systems for this language
+                complete_systems_by_language[lang] = {
+                    row.get("system", "").split("_hipe-ocrepair-bench_")[0]
+                    for row in complete
+                }
+
+                if complete:
+                    lines.extend(build_language_ranking_table(complete, rerank=False))
+                    lines.append("")
+                if incomplete:
+                    lines.append("#### Systems with incomplete test set coverage\n")
+                    lines.append(
+                        "_Systems that have not processed all test sets are shown "
+                        "separately and not included in the official ranking._\n"
+                    )
+                    lines.extend(build_language_ranking_table(incomplete, rerank=True))
+                    lines.append("")
                 tsv_rel = os.path.relpath(tsv_path, output_path.parent)
                 lines.append(f"See [{tsv_path.name}]({tsv_rel}) for full details.\n")
             else:

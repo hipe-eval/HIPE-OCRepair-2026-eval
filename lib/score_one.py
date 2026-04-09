@@ -77,6 +77,54 @@ def derive_reference_stem(hypothesis_path: Path) -> str:
     return stem
 
 
+def impute_missing_corrections(records: list[dict]) -> tuple[list[dict], int, int]:
+    """Impute missing/invalid postcorrection outputs with original OCR.
+
+    If ocr_postcorrection_output.transcription_unit is missing, None, "None",
+    or empty, copy ocr_hypothesis.transcription_unit instead. This treats
+    missing corrections as "no change applied" rather than "deleted text".
+
+    Returns:
+        tuple: (modified_records, num_imputed, num_valid)
+    """
+    imputed_count = 0
+    valid_count = 0
+
+    for record in records:
+        ocr_hyp = record.get("ocr_hypothesis", {})
+        ocr_post = record.get("ocr_postcorrection_output", {})
+
+        # Get postcorrection text
+        post_text = ocr_post.get("transcription_unit")
+
+        # Check if it's missing, None, "None", or empty
+        if post_text is None or post_text == "None" or post_text == "":
+            # Copy OCR hypothesis to postcorrection
+            hyp_text = ocr_hyp.get("transcription_unit", "")
+
+            # Ensure ocr_postcorrection_output exists
+            if "ocr_postcorrection_output" not in record:
+                record["ocr_postcorrection_output"] = {}
+
+            record["ocr_postcorrection_output"]["transcription_unit"] = hyp_text
+
+            # Also copy other fields if they don't exist
+            for field in ["line_offsets", "sentence_offsets", "paragraph_offsets"]:
+                if field not in record["ocr_postcorrection_output"]:
+                    record["ocr_postcorrection_output"][field] = ocr_hyp.get(field, [])
+
+            doc_id = record.get("document_metadata", {}).get("document_id", "unknown")
+            logging.warning(
+                f"Missing/invalid postcorrection for document '{doc_id}' "
+                f"(value: {repr(post_text)}) — imputed with original OCR"
+            )
+            imputed_count += 1
+        else:
+            valid_count += 1
+
+    return records, imputed_count, valid_count
+
+
 def round_scores(obj: object, decimals: int = 4) -> object:
     if isinstance(obj, float):
         return round(obj, decimals)
@@ -126,6 +174,9 @@ def main() -> None:
     logging.debug(f"Loaded {len(ref_records)} reference records")
     logging.debug(f"Loaded {len(hyp_records)} hypothesis records")
 
+    # Impute missing postcorrection outputs with original OCR
+    hyp_records, num_imputed, num_valid = impute_missing_corrections(hyp_records)
+
     merged = align_records(ref_records, hyp_records)
     if not merged:
         logging.error(f"No valid records after alignment for {hyp_path.name}")
@@ -144,6 +195,14 @@ def main() -> None:
     cmer = results["averaged_scores"]["cmer_macro"][0]
     pref = results["averaged_scores"]["pref_score_cmer_macro"][0]
     logging.info(f"  cmer_macro={cmer:.4f}  pref_cmer_macro={pref:.4f}")
+
+    # Log postcorrection statistics
+    total_docs = num_imputed + num_valid
+    logging.info(
+        f"Postcorrection stats: {num_valid}/{total_docs} valid, "
+        f"{num_imputed}/{total_docs} imputed with original OCR"
+    )
+
     logging.info(f"Results written to: {out_path}")
     if log_file:
         logging.info(f"Log written to: {log_file}")
