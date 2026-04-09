@@ -18,7 +18,7 @@ RESULTS_MD_DUMMY       := HIPE_OCRepair_2026_evaluation_results_dummy.md
 DUMMY_BASELINE_SWAP_CHARS ?= 0.05 0.1
 DUMMY_BASELINE_SWAP_WORDS ?= 0.01 0.05
 DUMMY_BASELINE_RUN_SEEDS  ?= --run-seeds
-SCHEMA_PATH         ?=
+SCHEMA_PATH         ?= lib/schema.json
 
 TEAMS_JSON         := lib/teams.json
 COMPETITION_CONFIG := lib/competition_config.json
@@ -141,7 +141,7 @@ help:
 	@echo "Override variables:"
 	@echo "  REFERENCE_DIR        Real reference JSONL directory     (default: data/reference)"
 	@echo "  REFERENCE_DIR_DUMMY  Dummy reference JSONL directory    (default: data/reference-dummy)"
-	@echo "  SCHEMA_PATH          Optional JSON schema override      (default: scorer built-in schema)"
+	@echo "  SCHEMA_PATH          Optional JSON schema override      (default: lib/schema.json)"
 	@echo "  SUBMISSIONS_DUMMY_DIR  Dummy hypothesis directory       (default: $(SUBMISSIONS_DUMMY_DIR))"
 	@echo "  DUMMY_BASELINE_SWAP_CHARS  Character swap ratios        (default: $(DUMMY_BASELINE_SWAP_CHARS))"
 	@echo "  DUMMY_BASELINE_SWAP_WORDS  Word swap ratios             (default: $(DUMMY_BASELINE_SWAP_WORDS))"
