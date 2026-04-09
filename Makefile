@@ -115,6 +115,28 @@ results-md-dummy: | $(RANKINGS_DIR_DUMMY)
 results-md: | $(RANKINGS_DIR)
 	$(PYTHON) lib/build_results_md.py --rankings-dir $(RANKINGS_DIR) --teams-json $(TEAMS_JSON) --output $(RESULTS_MD) --scorer-version $(SCORER_VERSION) --data-version $(DATA_VERSION)
 
+.PHONY: pairwise-overlaps
+pairwise-overlaps: | $(RANKINGS_DIR)
+	$(PYTHON) lib/pairwise_overlaps.py \
+		--rankings-dir $(RANKINGS_DIR) \
+		--submissions-dir $(SUBMISSIONS_DIR) \
+		--reference-dir $(REFERENCE_DIR) \
+		--metric cmer_micro \
+		--n-bootstrap 10000 \
+		--output results/pairwise-overlaps.tsv \
+		--verbose
+
+.PHONY: pairwise-overlaps-dummy
+pairwise-overlaps-dummy: | $(RANKINGS_DIR_DUMMY)
+	$(PYTHON) lib/pairwise_overlaps.py \
+		--rankings-dir $(RANKINGS_DIR_DUMMY) \
+		--submissions-dir $(SUBMISSIONS_DUMMY_DIR) \
+		--reference-dir $(REFERENCE_DIR_DUMMY) \
+		--metric cmer_micro \
+		--n-bootstrap 10000 \
+		--output results-dummy/pairwise-overlaps.tsv \
+		--verbose
+
 .PHONY: eval-full
 eval-full: score rankings results-md
 
@@ -156,6 +178,7 @@ help:
 	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
 	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
+	@echo "  pairwise-overlaps-dummy  Test systems with overlapping CIs (outputs results-dummy/pairwise-overlaps.tsv)"
 	@echo ""
 	@echo "Real pipeline step-by-step (all output under results/):"
 	@echo "  validate-submissions  Validate real submissions in $(SUBMISSIONS_DIR) against the JSON schema"
@@ -164,6 +187,14 @@ help:
 	@echo "  score              Score real submissions in $(SUBMISSIONS_DIR) (incremental)"
 	@echo "  rankings           Build ranking TSVs from scored real submissions"
 	@echo "  results-md         Render $(RESULTS_MD)"
+	@echo "  pairwise-overlaps  Test systems with overlapping CIs (outputs results/pairwise-overlaps.tsv)"
+	@echo ""
+	@echo "Statistical Analysis:"
+	@echo "  pairwise-overlaps  Identify consecutive systems with overlapping CIs and run paired bootstrap tests"
+	@echo "                     Output: results/pairwise-overlaps.tsv with significance testing results"
+	@echo "                     Use cases: (1) Validate ranking differences are statistically meaningful"
+	@echo "                                (2) Identify performance 'tiers' (systems in statistical tie)"
+	@echo "                                (3) Detect misleading rankings (point estimate differs but not significant)"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean              Remove results/, $(RESULTS_MD)"
