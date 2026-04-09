@@ -28,11 +28,13 @@ from pathlib import Path
 
 # Parses hypothesis stem:
 # team1_hipe-ocrepair-bench_v0.9_impresso-snippets_dev_de_run1
+# team1_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test-unmatched_de_run1
 HYPO_PATTERN = re.compile(
     r"^(?P<teamname>[^_]+)_"
     r"hipe-ocrepair-bench_(?P<version>[^_]+)_"
     r"(?P<dataset>.+)_"
-    r"(?P<split>train|dev|test|masked-test)_(?P<language>[a-z]{2})_"
+    r"(?P<split>train|dev|test|masked-test)_"
+    r"(?P<language>[a-z]{2})_"
     r"(?P<run>run\d+)$",
     re.IGNORECASE,
 )
@@ -42,7 +44,11 @@ def parse_hypothesis_stem(stem: str) -> dict | None:
     m = HYPO_PATTERN.match(stem)
     if not m:
         return None
-    return m.groupdict()
+    meta = m.groupdict()
+    # Normalize masked-test to test since they use the same reference files
+    if meta["split"].lower() == "masked-test":
+        meta["split"] = "test"
+    return meta
 
 
 def extract_metrics(averaged_scores: dict) -> dict:

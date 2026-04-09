@@ -1,9 +1,8 @@
 {
-  "no-correction": "Example University, City, Country",
+  "no-correction": "Automatic Baseline that preserves text as is",
   "perfect": "Test Institute, City, Country",
-  "char-swaps-p05": "Swap 5% char pairs Institute, City, Country",
-  "char-swaps-p10": "Swap 10% char pairs Institute, City, Country",
-  "word-swaps-p05": "Swap 5% word pairs Institute, City, Country",
-  "word-swaps-p10": "Swap 10% word pairs Institute, City, Country"
-
+  "bnf-mistral": "bnf-mistral team",
+  "l3i": "l3i team",
+  "Zakaria-ENSIAS": "Zakaria-ENSIAS team",
+  "blocr": "blocr team"
 }

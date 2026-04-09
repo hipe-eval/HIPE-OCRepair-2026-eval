@@ -46,10 +46,11 @@ def fmt(val, precision: int = 4) -> str:
 def parse_tsv_filename(name: str) -> dict | None:
     """Parse ranking-<dataset>-<split>-<language>-cmer-micro.tsv.
 
-    Supports split names with hyphens such as masked-test.
+    Supports split names with hyphens such as masked-test and masked-test-unmatched.
     """
     m = re.match(
-        r"^ranking-(?P<dataset>.+)-(?P<split>train|dev|test|masked-test)-"
+        r"^ranking-(?P<dataset>.+)-"
+        r"(?P<split>train|dev|test|masked-test)-"
         r"(?P<language>[a-z]{2})-cmer-micro$",
         Path(name).stem,
     )
@@ -61,7 +62,7 @@ def parse_tsv_filename(name: str) -> dict | None:
 def parse_overall_tsv_filename(name: str) -> dict | None:
     """Parse ranking-overall-<split>-weighted.tsv."""
     m = re.match(
-        r"^ranking-overall-(?P<split>train|dev|test|masked-test)-weighted$",
+        r"^ranking-overall-" r"(?P<split>train|dev|test|masked-test)" r"-weighted$",
         Path(name).stem,
     )
     if not m:
@@ -73,7 +74,8 @@ def parse_language_tsv_filename(name: str) -> dict | None:
     """Parse ranking-language-<lang>-<split>-weighted.tsv."""
     m = re.match(
         r"^ranking-language-(?P<language>[^-]+)-"
-        r"(?P<split>train|dev|test|masked-test)-weighted$",
+        r"(?P<split>train|dev|test|masked-test)"
+        r"-weighted$",
         Path(name).stem,
     )
     if not m:
@@ -243,8 +245,12 @@ def main() -> None:
             "<language>_run<N>`"
         ),
         "",
-        "For official submissions, `<split>` in system filenames is `masked-test`;",
-        "matching reference files in `data/reference/` use `test`.",
+        (
+            "For official submissions, `<split>` in system filenames is usually "
+            "`masked-test`;"
+        ),
+        "the unmatched DTA variant uses `masked-test-unmatched`, while matching",
+        "reference files in `data/reference/` use `test` or `test-unmatched`.",
         "",
         (
             "**Primary metric**: overall micro-cMER — weighted mean of per-test-set"

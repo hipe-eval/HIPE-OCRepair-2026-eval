@@ -18,11 +18,35 @@ Usage:
 
 import argparse
 import json
+import logging
 import re
 import sys
 from pathlib import Path
 
 from hipe_ocrepair_scorer import Evaluation, align_records
+
+
+def setup_logging(log_file: Path | None = None) -> None:
+    """Configure logging to file and stderr."""
+    handlers = []
+
+    # Console handler (stderr)
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+    handlers.append(console_handler)
+
+    # File handler (if specified)
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(
+            logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+        )
+        handlers.append(file_handler)
+
+    logging.basicConfig(level=logging.DEBUG, handlers=handlers, force=True)
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -35,7 +59,7 @@ def load_jsonl(path: Path) -> list[dict]:
             try:
                 records.append(json.loads(line))
             except json.JSONDecodeError as e:
-                print(f"[ERROR] {path} line {i}: {e}", file=sys.stderr)
+                logging.error(f"{path} line {i}: {e}")
                 sys.exit(1)
     return records
 
@@ -72,39 +96,42 @@ def main() -> None:
         "--reference-dir", required=True, help="Directory with reference JSONL files."
     )
     parser.add_argument("--output", required=True, help="Path to write JSON results.")
+    parser.add_argument("--log-file", help="Path to write log output.")
     args = parser.parse_args()
 
     hyp_path = Path(args.hypothesis)
     ref_dir = Path(args.reference_dir)
     out_path = Path(args.output)
+    log_file = Path(args.log_file) if args.log_file else None
+
+    setup_logging(log_file)
 
     if not hyp_path.is_file():
-        print(f"[ERROR] Hypothesis file not found: {hyp_path}", file=sys.stderr)
+        logging.error(f"Hypothesis file not found: {hyp_path}")
         sys.exit(1)
 
     ref_stem = derive_reference_stem(hyp_path)
     ref_path = ref_dir / f"{ref_stem}.jsonl"
 
     if not ref_path.is_file():
-        print(
-            f"[WARNING] Reference not found: {ref_path} — skipping {hyp_path.name}",
-            file=sys.stderr,
-        )
-        print(f"          (derived stem: {ref_stem})", file=sys.stderr)
+        logging.warning(f"Reference not found: {ref_path} — skipping {hyp_path.name}")
+        logging.warning(f"  (derived stem: {ref_stem})")
         sys.exit(0)
 
-    print(f"Scoring: {hyp_path.name} <-> {ref_path.name}", file=sys.stderr)
+    logging.info(f"Scoring: {hyp_path.name} <-> {ref_path.name}")
 
     ref_records = load_jsonl(ref_path)
     hyp_records = load_jsonl(hyp_path)
 
+    logging.debug(f"Loaded {len(ref_records)} reference records")
+    logging.debug(f"Loaded {len(hyp_records)} hypothesis records")
+
     merged = align_records(ref_records, hyp_records)
     if not merged:
-        print(
-            f"[ERROR] No valid records after alignment for {hyp_path.name}",
-            file=sys.stderr,
-        )
+        logging.error(f"No valid records after alignment for {hyp_path.name}")
         sys.exit(1)
+
+    logging.debug(f"Aligned {len(merged)} records")
 
     results = Evaluation(merged).score_over_datasets(normalize=True)
     results = round_scores(results)
@@ -116,7 +143,10 @@ def main() -> None:
 
     cmer = results["averaged_scores"]["cmer_macro"][0]
     pref = results["averaged_scores"]["pref_score_cmer_macro"][0]
-    print(f"  cmer_macro={cmer:.4f}  pref_cmer_macro={pref:.4f}", file=sys.stderr)
+    logging.info(f"  cmer_macro={cmer:.4f}  pref_cmer_macro={pref:.4f}")
+    logging.info(f"Results written to: {out_path}")
+    if log_file:
+        logging.info(f"Log written to: {log_file}")
 
 
 if __name__ == "__main__":
