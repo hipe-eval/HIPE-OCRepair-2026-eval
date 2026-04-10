@@ -21,10 +21,12 @@ DUMMY_BASELINE_SWAP_CHARS ?= 0.05 0.1
 DUMMY_BASELINE_SWAP_WORDS ?= 0.01 0.05
 DUMMY_BASELINE_RUN_SEEDS  ?= --run-seeds
 SCHEMA_PATH         ?= lib/schema.json
+EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS ?= 0
+EXPORT_TEXT_VIEWS_NORMALIZE_FLAG := $(if $(filter 1 true yes on,$(EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS)),--apply-normalizations,)
 
 TEAMS_JSON         := lib/teams.json
 COMPETITION_CONFIG := lib/competition_config.json
-SCORER_VERSION     := 0.9.0
+SCORER_VERSION     := 0.9.2
 DATA_VERSION       := v0.9
 
 SUBMISSIONS           := $(wildcard $(SUBMISSIONS_DIR)/*.jsonl)
@@ -74,8 +76,12 @@ score: $(PER_RUN_JSONS)
 export-text-views: | $(TEXT_VIEWS_DIR)
 	for f in $(SUBMISSIONS_DIR)/*.jsonl; do \
 		stem=$$(basename $$f .jsonl); \
-		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR) --output-prefix $(TEXT_VIEWS_DIR)/$$stem --log-file $(TEXT_VIEWS_DIR)/$$stem.log; \
+		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR) --output-prefix $(TEXT_VIEWS_DIR)/$$stem --log-file $(TEXT_VIEWS_DIR)/$$stem.log $(EXPORT_TEXT_VIEWS_NORMALIZE_FLAG); \
 	done
+
+.PHONY: export-text-views-normalized
+export-text-views-normalized:
+	$(MAKE) export-text-views EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS=1
 
 .PHONY: validate-submissions
 validate-submissions:
@@ -96,8 +102,12 @@ score-dummy: | $(PER_RUN_DIR_DUMMY)
 export-text-views-dummy: | $(TEXT_VIEWS_DIR_DUMMY)
 	for f in $(SUBMISSIONS_DUMMY_DIR)/*.jsonl; do \
 		stem=$$(basename $$f .jsonl); \
-		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR_DUMMY) --output-prefix $(TEXT_VIEWS_DIR_DUMMY)/$$stem --log-file $(TEXT_VIEWS_DIR_DUMMY)/$$stem.log; \
+		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR_DUMMY) --output-prefix $(TEXT_VIEWS_DIR_DUMMY)/$$stem --log-file $(TEXT_VIEWS_DIR_DUMMY)/$$stem.log $(EXPORT_TEXT_VIEWS_NORMALIZE_FLAG); \
 	done
+
+.PHONY: export-text-views-dummy-normalized
+export-text-views-dummy-normalized:
+	$(MAKE) export-text-views-dummy EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS=1
 
 .PHONY: rankings
 rankings: $(PER_RUN_JSONS) | $(RANKINGS_DIR)
@@ -175,6 +185,7 @@ help:
 	@echo "  baselines-dummy    Generate dummy baselines from $(REFERENCE_DIR_DUMMY) into $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  validate-submissions-dummy  Validate dummy submissions against the JSON schema"
 	@echo "  export-text-views-dummy  Export aligned orig/gth/cor multiline text files"
+	@echo "  export-text-views-dummy-normalized  Same as above, with evaluator normalization"
 	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
 	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
@@ -184,6 +195,7 @@ help:
 	@echo "  validate-submissions  Validate real submissions in $(SUBMISSIONS_DIR) against the JSON schema"
 	@echo "  baseline-no-correction  Generate no-correction baseline from real reference files"
 	@echo "  export-text-views  Export aligned orig/gth/cor multiline text files"
+	@echo "  export-text-views-normalized  Same as above, with evaluator normalization"
 	@echo "  score              Score real submissions in $(SUBMISSIONS_DIR) (incremental)"
 	@echo "  rankings           Build ranking TSVs from scored real submissions"
 	@echo "  results-md         Render $(RESULTS_MD)"
@@ -205,6 +217,7 @@ help:
 	@echo "  REFERENCE_DIR_DUMMY  Dummy reference JSONL directory    (default: data/reference-dummy)"
 	@echo "  SCHEMA_PATH          Optional JSON schema override      (default: lib/schema.json)"
 	@echo "  SUBMISSIONS_DUMMY_DIR  Dummy hypothesis directory       (default: $(SUBMISSIONS_DUMMY_DIR))"
+	@echo "  EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS  1/true to pass --apply-normalizations (default: $(EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS))"
 	@echo "  DUMMY_BASELINE_SWAP_CHARS  Character swap ratios        (default: $(DUMMY_BASELINE_SWAP_CHARS))"
 	@echo "  DUMMY_BASELINE_SWAP_WORDS  Word swap ratios             (default: $(DUMMY_BASELINE_SWAP_WORDS))"
 	@echo ""
