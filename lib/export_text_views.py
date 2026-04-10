@@ -69,6 +69,34 @@ def build_record_block(document_id: str, text: str) -> str:
     return f"===== {document_id} =====\n{text}\n\n"
 
 
+def normalize_text_for_eval(text: str) -> str:
+    """Apply the same normalization policy as Evaluation._normalize()."""
+    text = text.lower()
+    text = text.replace("¬\n", "")
+    text = re.sub(r"[^\w]", " ", text, flags=re.UNICODE)
+    text = re.sub(r"_", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    text = text.strip()
+    return text
+
+
+def apply_normalizations(records: list[dict]) -> None:
+    """Normalize transcription_unit for all channels in-place."""
+    for record in records:
+        for channel_key in (
+            "ocr_hypothesis",
+            "ground_truth",
+            "ocr_postcorrection_output",
+        ):
+            channel = record.get(channel_key)
+            if not isinstance(channel, dict):
+                continue
+            text = channel.get("transcription_unit", "")
+            if not isinstance(text, str):
+                text = str(text)
+            channel["transcription_unit"] = normalize_text_for_eval(text)
+
+
 def write_channel(records: list[dict], channel_key: str, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
@@ -94,6 +122,14 @@ def main() -> None:
         "--output-prefix",
         required=True,
         help="Prefix for output files; writes .orig.txt, .gth.txt, and .cor.txt.",
+    )
+    parser.add_argument(
+        "--apply-normalizations",
+        action="store_true",
+        help=(
+            "Apply the same text normalization as the evaluator "
+            "(lowercase, punctuation-insensitive, whitespace-collapsed)."
+        ),
     )
     parser.add_argument("--log-file", help="Path to write log output.")
     args = parser.parse_args()
@@ -125,6 +161,10 @@ def main() -> None:
         sys.exit(1)
 
     logging.debug("Aligned %d records", len(merged))
+
+    if args.apply_normalizations:
+        apply_normalizations(merged)
+        logging.info("Applied evaluator-style normalizations to exported text views")
 
     orig_path = Path(f"{output_prefix}.orig.txt")
     gth_path = Path(f"{output_prefix}.gth.txt")

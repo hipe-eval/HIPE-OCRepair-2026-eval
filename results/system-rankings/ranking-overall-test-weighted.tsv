@@ -1,0 +1,9 @@
+rank	system	overall_cmer	overall_cmer_lo	overall_cmer_hi	overall_pref	overall_pref_lo	overall_pref_hi	n_test_sets	n_total_test_sets
+1	bnf-mistral_hipe-ocrepair-bench_v0.9_run1	0.0075	0.0058	0.0095	0.8342	0.7562	0.8964	8	8
+2	bnf-mistral_hipe-ocrepair-bench_v0.9_run3	0.0096	0.0073	0.0123	0.8092	0.7221	0.8832	8	8
+3	bnf-mistral_hipe-ocrepair-bench_v0.9_run2	0.0103	0.008	0.013	0.8276	0.7265	0.9127	8	8
+4	blocr_hipe-ocrepair-bench_v0.9_run1	0.016	0.0115	0.0217	0.5914	0.4676	0.7068	8	8
+5	l3i_hipe-ocrepair-bench_v0.9_run1	0.0188	0.0152	0.0231	0.33	0.2063	0.4471	8	8
+6	l3i_hipe-ocrepair-bench_v0.9_run2	0.0228	0.0194	0.0267	-0.1067	-0.2167	0.0033	3	8
+7	baseline-no-correction_hipe-ocrepair-bench_v0.9_run1	0.0231	0.0198	0.0268	0.0	0.0	0.0	8	8
+8	Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_run1	0.0241	0.017	0.0336	0.3271	0.1799	0.4704	7	8
