@@ -1,6 +1,6 @@
 # HIPE-OCRepair 2026 – Evaluation Results
 
-- **Generated**: 2026-04-10 09:36:32
+- **Generated**: 2026-04-10 09:40:59
 - **Scorer**: hipe-ocrepair-scorer v0.9.2
 - **Benchmark**: hipe-ocrepair-bench v0.9
 
@@ -88,6 +88,21 @@ reference files in `data/reference/` use `test` or `test-unmatched`.
 | Zakaria-ENSIAS | impresso-snippets_v1.0_masked-test_de | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 |
 | Zakaria-ENSIAS | impresso-snippets_v1.0_masked-test_en | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1 |
 | Zakaria-ENSIAS | impresso-snippets_v1.0_masked-test_fr | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1 |
+
+## Submission counts by team and dataset
+
+_Number of runs submitted per team for each dataset._
+
+| Dataset | baseline-no-correction | blocr | bnf-mistral | l3i | Zakaria-ENSIAS |
+|---------|-----|-----|-----|-----|-----|
+| dta19-l0_v0.1_masked-test_de | 1 | 1 | 3 | 1 | 1 |
+| dta19-l1_v0.1_masked-test_de | 1 | 1 | 3 | 1 | 1 |
+| dta19-l2_v0.1_masked-test_de | 1 | 1 | 3 | 1 | 0 |
+| icdar2017_v1.1_masked-test_en | 1 | 1 | 3 | 1 | 1 |
+| icdar2017_v1.1_masked-test_fr | 1 | 1 | 3 | 1 | 1 |
+| impresso-snippets_v1.0_masked-test_de | 1 | 1 | 3 | 2 | 1 |
+| impresso-snippets_v1.0_masked-test_en | 1 | 1 | 3 | 2 | 1 |
+| impresso-snippets_v1.0_masked-test_fr | 1 | 1 | 3 | 2 | 1 |
 
 ## Overall rankings
 

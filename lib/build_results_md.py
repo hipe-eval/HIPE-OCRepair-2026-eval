@@ -188,6 +188,47 @@ def build_submission_overview_table(by_team: dict[str, list[dict]]) -> list[str]
     return lines
 
 
+def build_submission_counts_table(by_team: dict[str, list[dict]]) -> list[str]:
+    """Build a table showing submission counts (runs) per team per dataset."""
+    # Collect all unique datasets
+    all_datasets = set()
+    for submissions in by_team.values():
+        for sub in submissions:
+            dataset = sub.get("dataset", "")
+            if dataset and dataset != "—":
+                all_datasets.add(dataset)
+
+    all_datasets = sorted(all_datasets)
+    teams = list(by_team.keys())
+
+    if not all_datasets or not teams:
+        return []
+
+    # Count submissions per team per dataset
+    counts = {}
+    for team, submissions in by_team.items():
+        counts[team] = defaultdict(int)
+        for sub in submissions:
+            dataset = sub.get("dataset", "")
+            if dataset and dataset != "—":
+                counts[team][dataset] += 1
+
+    # Build header with all teams
+    lines = [
+        "## Submission counts by team and dataset\n",
+        "_Number of runs submitted per team for each dataset._\n",
+        "| Dataset | " + " | ".join(teams) + " |",
+        "|---------|" + "|".join(["-----"] * len(teams)) + "|",
+    ]
+
+    # Build rows for each dataset
+    for dataset in all_datasets:
+        team_counts = [str(counts[team].get(dataset, 0)) for team in teams]
+        lines.append(f"| {dataset} | " + " | ".join(team_counts) + " |")
+
+    return lines
+
+
 def split_complete_incomplete(rows: list[dict]) -> tuple[list[dict], list[dict]]:
     """Split rows into complete (all test sets) and incomplete systems."""
     complete = []
@@ -389,6 +430,8 @@ def main() -> None:
     submissions_by_team = collect_submission_overview(dataset_groups)
     if submissions_by_team:
         lines.extend(build_submission_overview_table(submissions_by_team))
+        lines.append("")
+        lines.extend(build_submission_counts_table(submissions_by_team))
         lines.append("")
 
     # --- Overall weighted rankings ---
