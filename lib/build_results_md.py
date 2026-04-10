@@ -94,6 +94,92 @@ def build_team_key_table(teams: dict) -> list[str]:
     return lines
 
 
+def parse_system_name(system_name: str) -> dict[str, str] | None:
+    """Parse system name into team, dataset descriptor, and run.
+
+    Expected pattern:
+    <team>_hipe-ocrepair-bench_<version>_<dataset_parts>_run<N>
+    """
+    marker = "_hipe-ocrepair-bench_"
+    if marker not in system_name:
+        return None
+
+    team, tail = system_name.split(marker, 1)
+    run_match = re.search(r"_run(?P<run>\d+)$", tail)
+    if run_match is None:
+        return None
+
+    run = run_match.group("run")
+    before_run = tail[: run_match.start()]
+
+    # Remove leading benchmark version (e.g. v0.9_)
+    before_run = re.sub(r"^v\d+(?:\.\d+)*_", "", before_run)
+
+    return {
+        "team": team,
+        "dataset": before_run,
+        "run": run,
+        "system": system_name,
+    }
+
+
+def collect_submission_overview(
+    dataset_groups: dict[str, list],
+) -> dict[str, list[dict]]:
+    """Collect unique submissions across all dataset ranking files by team."""
+    seen_systems: set[str] = set()
+    by_team: dict[str, list[dict]] = defaultdict(list)
+
+    for entries in dataset_groups.values():
+        for tsv_path, _meta in entries:
+            with open(tsv_path, encoding="utf-8") as f:
+                rows = list(csv.DictReader(f, delimiter="\t"))
+            for row in rows:
+                system = row.get("system", "").strip()
+                if not system or system in seen_systems:
+                    continue
+                seen_systems.add(system)
+                parsed = parse_system_name(system)
+                if parsed is None:
+                    by_team["(unparsed)"].append(
+                        {
+                            "team": "(unparsed)",
+                            "dataset": "—",
+                            "run": "—",
+                            "system": system,
+                        }
+                    )
+                else:
+                    by_team[parsed["team"]].append(parsed)
+
+    for team in by_team:
+        by_team[team] = sorted(
+            by_team[team],
+            key=lambda x: (
+                x.get("dataset", ""),
+                int(x.get("run", "0")) if str(x.get("run", "")).isdigit() else 0,
+            ),
+        )
+
+    return dict(sorted(by_team.items(), key=lambda kv: kv[0].lower()))
+
+
+def build_submission_overview_table(by_team: dict[str, list[dict]]) -> list[str]:
+    lines = [
+        "## Submission overview\n",
+        "| Team | Dataset | Run | System |",
+        "|------|---------|-----|--------|",
+    ]
+    for team, submissions in by_team.items():
+        for sub in submissions:
+            lines.append(
+                "| "
+                f"{team} | {sub.get('dataset', '—')} | {sub.get('run', '—')}"
+                f" | {sub.get('system', '—')} |"
+            )
+    return lines
+
+
 def split_complete_incomplete(rows: list[dict]) -> tuple[list[dict], list[dict]]:
     """Split rows into complete (all test sets) and incomplete systems."""
     complete = []
@@ -290,6 +376,11 @@ def main() -> None:
 
     if teams:
         lines.extend(build_team_key_table(teams))
+        lines.append("")
+
+    submissions_by_team = collect_submission_overview(dataset_groups)
+    if submissions_by_team:
+        lines.extend(build_submission_overview_table(submissions_by_team))
         lines.append("")
 
     # --- Overall weighted rankings ---

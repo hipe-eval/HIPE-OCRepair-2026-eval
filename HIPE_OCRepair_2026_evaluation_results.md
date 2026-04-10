@@ -1,6 +1,6 @@
 # HIPE-OCRepair 2026 – Evaluation Results
 
-- **Generated**: 2026-04-10 08:57:48
+- **Generated**: 2026-04-10 09:08:53
 - **Scorer**: hipe-ocrepair-scorer v0.9.2
 - **Benchmark**: hipe-ocrepair-bench v0.9
 
@@ -25,6 +25,69 @@ reference files in `data/reference/` use `test` or `test-unmatched`.
 | blocr | blocr team |
 | bnf-mistral | bnf-mistral team |
 | l3i | l3i team |
+
+## Submission overview
+
+| Team | Dataset | Run | System |
+|------|---------|-----|--------|
+| baseline-no-correction | dta19-l0_v0.1_masked-test_de | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 |
+| baseline-no-correction | dta19-l1_v0.1_masked-test_de | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 |
+| baseline-no-correction | dta19-l2_v0.1_masked-test_de | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 |
+| baseline-no-correction | icdar2017_v1.1_masked-test_en | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run1 |
+| baseline-no-correction | icdar2017_v1.1_masked-test_fr | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1 |
+| baseline-no-correction | impresso-snippets_v1.0_masked-test_de | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 |
+| baseline-no-correction | impresso-snippets_v1.0_masked-test_en | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1 |
+| baseline-no-correction | impresso-snippets_v1.0_masked-test_fr | 1 | baseline-no-correction_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1 |
+| blocr | dta19-l0_v0.1_masked-test_de | 1 | blocr_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 |
+| blocr | dta19-l1_v0.1_masked-test_de | 1 | blocr_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 |
+| blocr | dta19-l2_v0.1_masked-test_de | 1 | blocr_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 |
+| blocr | icdar2017_v1.1_masked-test_en | 1 | blocr_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run1 |
+| blocr | icdar2017_v1.1_masked-test_fr | 1 | blocr_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1 |
+| blocr | impresso-snippets_v1.0_masked-test_de | 1 | blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 |
+| blocr | impresso-snippets_v1.0_masked-test_en | 1 | blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1 |
+| blocr | impresso-snippets_v1.0_masked-test_fr | 1 | blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1 |
+| bnf-mistral | dta19-l0_v0.1_masked-test_de | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 |
+| bnf-mistral | dta19-l0_v0.1_masked-test_de | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run2 |
+| bnf-mistral | dta19-l0_v0.1_masked-test_de | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run3 |
+| bnf-mistral | dta19-l1_v0.1_masked-test_de | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 |
+| bnf-mistral | dta19-l1_v0.1_masked-test_de | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run2 |
+| bnf-mistral | dta19-l1_v0.1_masked-test_de | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run3 |
+| bnf-mistral | dta19-l2_v0.1_masked-test_de | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 |
+| bnf-mistral | dta19-l2_v0.1_masked-test_de | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run2 |
+| bnf-mistral | dta19-l2_v0.1_masked-test_de | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run3 |
+| bnf-mistral | icdar2017_v1.1_masked-test_en | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run1 |
+| bnf-mistral | icdar2017_v1.1_masked-test_en | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run2 |
+| bnf-mistral | icdar2017_v1.1_masked-test_en | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run3 |
+| bnf-mistral | icdar2017_v1.1_masked-test_fr | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1 |
+| bnf-mistral | icdar2017_v1.1_masked-test_fr | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run2 |
+| bnf-mistral | icdar2017_v1.1_masked-test_fr | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run3 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_de | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_de | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run2 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_de | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run3 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_en | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_en | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run2 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_en | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run3 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_fr | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_fr | 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run2 |
+| bnf-mistral | impresso-snippets_v1.0_masked-test_fr | 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run3 |
+| l3i | dta19-l0_v0.1_masked-test_de | 1 | l3i_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 |
+| l3i | dta19-l1_v0.1_masked-test_de | 1 | l3i_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 |
+| l3i | dta19-l2_v0.1_masked-test_de | 1 | l3i_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 |
+| l3i | icdar2017_v1.1_masked-test_en | 1 | l3i_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run1 |
+| l3i | icdar2017_v1.1_masked-test_fr | 1 | l3i_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1 |
+| l3i | impresso-snippets_v1.0_masked-test_de | 1 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 |
+| l3i | impresso-snippets_v1.0_masked-test_de | 2 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run2 |
+| l3i | impresso-snippets_v1.0_masked-test_en | 1 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1 |
+| l3i | impresso-snippets_v1.0_masked-test_en | 2 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run2 |
+| l3i | impresso-snippets_v1.0_masked-test_fr | 1 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1 |
+| l3i | impresso-snippets_v1.0_masked-test_fr | 2 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run2 |
+| Zakaria-ENSIAS | dta19-l0_v0.1_masked-test_de | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 |
+| Zakaria-ENSIAS | dta19-l1_v0.1_masked-test_de | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 |
+| Zakaria-ENSIAS | icdar2017_v1.1_masked-test_en | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_en_run1 |
+| Zakaria-ENSIAS | icdar2017_v1.1_masked-test_fr | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1 |
+| Zakaria-ENSIAS | impresso-snippets_v1.0_masked-test_de | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 |
+| Zakaria-ENSIAS | impresso-snippets_v1.0_masked-test_en | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1 |
+| Zakaria-ENSIAS | impresso-snippets_v1.0_masked-test_fr | 1 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1 |
 
 ## Overall rankings
 
