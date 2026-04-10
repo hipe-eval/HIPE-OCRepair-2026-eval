@@ -51,6 +51,23 @@ HIPE_OCRepair_2026_evaluation_results.md        # Final results page (generated)
 HIPE_OCRepair_2026_evaluation_results_dummy.md  # Dummy results page (generated)
 ```
 
+### Prerequisites
+
+Before installing, ensure you have the following:
+
+- **Python 3.10 or newer** — check with `python3 --version`
+- **GNU Make 3.81+** (2006 or later) — standard on Linux and macOS
+- **Git** — for cloning the repository
+- **GNU grep** (required for pairwise significance testing analytics)
+  - **Linux**: already installed by default
+  - **macOS**: install with `brew install grep` (BSD grep doesn't support the `-P` flag used in analytics commands)
+
+**Platform notes:**
+
+- **Linux**: all tools typically pre-installed
+- **macOS**: requires Homebrew installation of GNU grep for full analytics support
+- **Windows**: use WSL (Windows Subsystem for Linux) for best compatibility
+
 ### Installation
 
 Clone the repository and install the required dependencies:
@@ -65,11 +82,22 @@ pip install -r requirements.txt
 ```
 
 The `requirements.txt` installs the
-[HIPE-OCRepair-scorer](https://github.com/hipe-eval/HIPE-OCRepair-scorer) during the
-development phase of this repository directly from GitHub. To update it to the latest version:
+[HIPE-OCRepair-scorer](https://github.com/hipe-eval/HIPE-OCRepair-scorer) from GitHub.
+This will also install all transitive dependencies (numpy, jiwer, etc.).
+
+To update the scorer to the latest version:
 
 ```bash
 pip install --upgrade -r requirements.txt
+```
+
+**Verify installation:**
+
+```bash
+make help                    # Show all available targets
+python3 --version            # Should be 3.10 or newer
+make --version               # Should be GNU Make 3.81+
+grep --version | head -1     # On macOS, ensure you're using GNU grep
 ```
 
 #### To run the evaluation
