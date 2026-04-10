@@ -160,7 +160,7 @@ pairwise-overlaps-dummy: | $(RANKINGS_DIR_DUMMY)
 		--verbose
 
 .PHONY: eval-full
-eval-full: score rankings results-md
+eval-full: score rankings results-md export-text-views export-text-views-normalized pairwise-overlaps
 
 .PHONY: eval-full-dummy
 eval-full-dummy:
@@ -171,7 +171,8 @@ eval-full-dummy:
 
 .PHONY: eval-full-refresh
 eval-full-refresh:
-	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR)
+	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(TEXT_VIEWS_DIR) $(TEXT_VIEWS_DIR_NORMALIZED) $(RESULTS_MD)
+	rm -f results/pairwise-overlaps.tsv
 	$(MAKE) eval-full
 
 .PHONY: clean-dummy
@@ -182,6 +183,7 @@ clean-dummy:
 .PHONY: clean
 clean:
 	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(TEXT_VIEWS_DIR) $(TEXT_VIEWS_DIR_NORMALIZED) $(RESULTS_MD)
+	rm -f results/pairwise-overlaps.tsv
 
 .PHONY: help
 help:
@@ -190,7 +192,7 @@ help:
 	@echo ""
 	@echo "End-to-end targets:"
 	@echo "  eval-full-dummy    Generate dummy baselines, score them, build rankings and MD (uses results-dummy/)"
-	@echo "  eval-full          Score real submissions, build rankings and MD (uses results/)"
+	@echo "  eval-full          Score real submissions, build rankings, results MD, text views, and pairwise tests (uses results/)"
 	@echo "  eval-full-refresh  Remove all derived real files and re-run eval-full from scratch"
 	@echo ""
 	@echo "Dummy pipeline step-by-step (all output under results-dummy/):"
