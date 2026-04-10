@@ -260,11 +260,11 @@ def build_ranking_table(rows: list[dict]) -> list[str]:
         rank = row.get("rank", "")
         system = row.get("system", "")
         cmer_micro = fmt(row.get("cmer_micro"))
-        ci = f"[{fmt(row.get('cmer_micro_lo'))}, {fmt(row.get('cmer_micro_hi'))}]"
+        ci = f"[{fmt(row.get('cmer_micro_lo'), 3)}, {fmt(row.get('cmer_micro_hi'), 3)}]"
         pref = fmt(row.get("pref_cmer_macro"))
         pref_ci = (
-            f"[{fmt(row.get('pref_cmer_macro_lo'))},"
-            f" {fmt(row.get('pref_cmer_macro_hi'))}]"
+            f"[{fmt(row.get('pref_cmer_macro_lo'), 3)},"
+            f" {fmt(row.get('pref_cmer_macro_hi'), 3)}]"
         )
         cmer_macro = fmt(row.get("cmer_macro"))
         wmer_macro = fmt(row.get("wmer_macro"))
@@ -289,10 +289,14 @@ def build_overall_ranking_table(rows: list[dict], rerank: bool = False) -> list[
         rank = "—" if rerank else row.get("rank", "")
         system = row.get("system", "")
         cmer = fmt(row.get("overall_cmer"))
-        ci = f"[{fmt(row.get('overall_cmer_lo'))}, {fmt(row.get('overall_cmer_hi'))}]"
+        ci = (
+            f"[{fmt(row.get('overall_cmer_lo'), 3)},"
+            f" {fmt(row.get('overall_cmer_hi'), 3)}]"
+        )
         pref = fmt(row.get("overall_pref"))
         pref_ci = (
-            f"[{fmt(row.get('overall_pref_lo'))}, {fmt(row.get('overall_pref_hi'))}]"
+            f"[{fmt(row.get('overall_pref_lo'), 3)},"
+            f" {fmt(row.get('overall_pref_hi'), 3)}]"
         )
         n = row.get("n_test_sets", "")
         n_total = row.get("n_total_test_sets", "")
@@ -317,10 +321,14 @@ def build_language_ranking_table(rows: list[dict], rerank: bool = False) -> list
         rank = "—" if rerank else row.get("rank", "")
         system = row.get("system", "")
         cmer = fmt(row.get("language_cmer"))
-        ci = f"[{fmt(row.get('language_cmer_lo'))}, {fmt(row.get('language_cmer_hi'))}]"
+        ci = (
+            f"[{fmt(row.get('language_cmer_lo'), 3)},"
+            f" {fmt(row.get('language_cmer_hi'), 3)}]"
+        )
         pref = fmt(row.get("language_pref"))
         pref_ci = (
-            f"[{fmt(row.get('language_pref_lo'))}, {fmt(row.get('language_pref_hi'))}]"
+            f"[{fmt(row.get('language_pref_lo'), 3)},"
+            f" {fmt(row.get('language_pref_hi'), 3)}]"
         )
         n = row.get("n_test_sets", "")
         n_total = row.get("n_total_test_sets", "")
