@@ -1,6 +1,6 @@
 # HIPE-OCRepair 2026 – Evaluation Results
 
-- **Generated**: 2026-04-10 09:33:22
+- **Generated**: 2026-04-10 09:36:32
 - **Scorer**: hipe-ocrepair-scorer v0.9.2
 - **Benchmark**: hipe-ocrepair-bench v0.9
 

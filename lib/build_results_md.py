@@ -152,6 +152,7 @@ def collect_submission_overview(
                 else:
                     by_team[parsed["team"]].append(parsed)
 
+    # Sort submissions within each team by dataset, then by run number
     for team in by_team:
         by_team[team] = sorted(
             by_team[team],
@@ -161,7 +162,14 @@ def collect_submission_overview(
             ),
         )
 
-    return dict(sorted(by_team.items(), key=lambda kv: kv[0].lower()))
+    # Sort teams alphabetically (case-insensitive), with "(unparsed)" always last
+    def team_sort_key(item):
+        team_name = item[0]
+        if team_name == "(unparsed)":
+            return ("zzz", team_name)  # Sort unparsed to the end
+        return ("", team_name.lower())
+
+    return dict(sorted(by_team.items(), key=team_sort_key))
 
 
 def build_submission_overview_table(by_team: dict[str, list[dict]]) -> list[str]:
