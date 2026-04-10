@@ -9,6 +9,7 @@ PER_RUN_DIR            := results/per-run
 RANKINGS_DIR           := results/system-rankings
 RESULTS_MD             := HIPE_OCRepair_2026_evaluation_results.md
 TEXT_VIEWS_DIR         := results/text-views
+TEXT_VIEWS_DIR_NORMALIZED := results/text-views-normalized
 
 # --- Dummy pipeline paths (isolated from real pipeline) ---
 REFERENCE_DIR_DUMMY    ?= data/reference-dummy
@@ -17,6 +18,7 @@ PER_RUN_DIR_DUMMY      := results-dummy/per-run
 RANKINGS_DIR_DUMMY     := results-dummy/system-rankings
 RESULTS_MD_DUMMY       := HIPE_OCRepair_2026_evaluation_results_dummy.md
 TEXT_VIEWS_DIR_DUMMY   := results-dummy/text-views
+TEXT_VIEWS_DIR_DUMMY_NORMALIZED := results-dummy/text-views-normalized
 DUMMY_BASELINE_SWAP_CHARS ?= 0.05 0.1
 DUMMY_BASELINE_SWAP_WORDS ?= 0.01 0.05
 DUMMY_BASELINE_RUN_SEEDS  ?= --run-seeds
@@ -40,11 +42,15 @@ $(RANKINGS_DIR):
 	mkdir -p $@
 $(TEXT_VIEWS_DIR):
 	mkdir -p $@
+$(TEXT_VIEWS_DIR_NORMALIZED):
+	mkdir -p $@
 $(PER_RUN_DIR_DUMMY):
 	mkdir -p $@
 $(RANKINGS_DIR_DUMMY):
 	mkdir -p $@
 $(TEXT_VIEWS_DIR_DUMMY):
+	mkdir -p $@
+$(TEXT_VIEWS_DIR_DUMMY_NORMALIZED):
 	mkdir -p $@
 $(SUBMISSIONS_DUMMY_DIR):
 	mkdir -p $@
@@ -80,8 +86,11 @@ export-text-views: | $(TEXT_VIEWS_DIR)
 	done
 
 .PHONY: export-text-views-normalized
-export-text-views-normalized:
-	$(MAKE) export-text-views EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS=1
+export-text-views-normalized: | $(TEXT_VIEWS_DIR_NORMALIZED)
+	for f in $(SUBMISSIONS_DIR)/*.jsonl; do \
+		stem=$$(basename $$f .jsonl); \
+		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR) --output-prefix $(TEXT_VIEWS_DIR_NORMALIZED)/$$stem --log-file $(TEXT_VIEWS_DIR_NORMALIZED)/$$stem.log --apply-normalizations; \
+	done
 
 .PHONY: validate-submissions
 validate-submissions:
@@ -106,8 +115,11 @@ export-text-views-dummy: | $(TEXT_VIEWS_DIR_DUMMY)
 	done
 
 .PHONY: export-text-views-dummy-normalized
-export-text-views-dummy-normalized:
-	$(MAKE) export-text-views-dummy EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS=1
+export-text-views-dummy-normalized: | $(TEXT_VIEWS_DIR_DUMMY_NORMALIZED)
+	for f in $(SUBMISSIONS_DUMMY_DIR)/*.jsonl; do \
+		stem=$$(basename $$f .jsonl); \
+		$(PYTHON) lib/export_text_views.py --hypothesis $$f --reference-dir $(REFERENCE_DIR_DUMMY) --output-prefix $(TEXT_VIEWS_DIR_DUMMY_NORMALIZED)/$$stem --log-file $(TEXT_VIEWS_DIR_DUMMY_NORMALIZED)/$$stem.log --apply-normalizations; \
+	done
 
 .PHONY: rankings
 rankings: $(PER_RUN_JSONS) | $(RANKINGS_DIR)
@@ -165,11 +177,11 @@ eval-full-refresh:
 .PHONY: clean-dummy
 clean-dummy:
 	find $(SUBMISSIONS_DUMMY_DIR) -maxdepth 1 \( -name 'perfect_*.jsonl' -o -name 'no-correction_*.jsonl' -o -name 'char-swaps-*.jsonl' -o -name 'word-swaps-*.jsonl' -o -name 'same_*.jsonl' -o -name 'random_*.jsonl' \) -delete
-	rm -rf $(PER_RUN_DIR_DUMMY) $(RANKINGS_DIR_DUMMY) $(RESULTS_MD_DUMMY)
+	rm -rf $(PER_RUN_DIR_DUMMY) $(RANKINGS_DIR_DUMMY) $(TEXT_VIEWS_DIR_DUMMY) $(TEXT_VIEWS_DIR_DUMMY_NORMALIZED) $(RESULTS_MD_DUMMY)
 
 .PHONY: clean
 clean:
-	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(RESULTS_MD)
+	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(TEXT_VIEWS_DIR) $(TEXT_VIEWS_DIR_NORMALIZED) $(RESULTS_MD)
 
 .PHONY: help
 help:
@@ -184,8 +196,8 @@ help:
 	@echo "Dummy pipeline step-by-step (all output under results-dummy/):"
 	@echo "  baselines-dummy    Generate dummy baselines from $(REFERENCE_DIR_DUMMY) into $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  validate-submissions-dummy  Validate dummy submissions against the JSON schema"
-	@echo "  export-text-views-dummy  Export aligned orig/gth/cor multiline text files"
-	@echo "  export-text-views-dummy-normalized  Same as above, with evaluator normalization"
+	@echo "  export-text-views-dummy  Export aligned orig/gth/cor multiline text files to results-dummy/text-views/"
+	@echo "  export-text-views-dummy-normalized  Export with evaluator normalization to results-dummy/text-views-normalized/"
 	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
 	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
 	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
@@ -194,8 +206,8 @@ help:
 	@echo "Real pipeline step-by-step (all output under results/):"
 	@echo "  validate-submissions  Validate real submissions in $(SUBMISSIONS_DIR) against the JSON schema"
 	@echo "  baseline-no-correction  Generate no-correction baseline from real reference files"
-	@echo "  export-text-views  Export aligned orig/gth/cor multiline text files"
-	@echo "  export-text-views-normalized  Same as above, with evaluator normalization"
+	@echo "  export-text-views  Export aligned orig/gth/cor multiline text files to results/text-views/"
+	@echo "  export-text-views-normalized  Export with evaluator normalization to results/text-views-normalized/"
 	@echo "  score              Score real submissions in $(SUBMISSIONS_DIR) (incremental)"
 	@echo "  rankings           Build ranking TSVs from scored real submissions"
 	@echo "  results-md         Render $(RESULTS_MD)"
