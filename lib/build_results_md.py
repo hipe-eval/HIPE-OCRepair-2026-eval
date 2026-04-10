@@ -406,11 +406,9 @@ def main() -> None:
         ),
         "",
         (
-            "For official submissions, `<split>` in system filenames is usually "
-            "`masked-test`;"
+            "For official submissions, `<split>` in system filenames is `masked-test`;"
+            " reference files in `data/reference/` use `test`."
         ),
-        "the unmatched DTA variant uses `masked-test-unmatched`, while matching",
-        "reference files in `data/reference/` use `test` or `test-unmatched`.",
         "",
         (
             "**Primary metric**: overall micro-cMER — weighted mean of per-test-set"
