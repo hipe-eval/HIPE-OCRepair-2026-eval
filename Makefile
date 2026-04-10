@@ -174,6 +174,7 @@ eval-full-refresh:
 	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(TEXT_VIEWS_DIR) $(TEXT_VIEWS_DIR_NORMALIZED) $(RESULTS_MD)
 	rm -f results/pairwise-overlaps.tsv
 	$(MAKE) eval-full
+	$(MAKE) results-md
 
 .PHONY: clean-dummy
 clean-dummy:
