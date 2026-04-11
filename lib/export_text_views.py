@@ -19,7 +19,7 @@ import re
 import sys
 from pathlib import Path
 
-from hipe_ocrepair_scorer import align_records
+from hipe_ocrepair_scorer import align_records, norm
 
 
 def setup_logging(log_file: Path | None = None) -> None:
@@ -65,78 +65,6 @@ def derive_reference_stem(hypothesis_path: Path) -> str:
     return stem
 
 
-def normalize_text_for_eval(text: str) -> str:
-    """Normalize text using the same policy as the evaluator.
-
-    This mirrors the normalization in hipe_ocrepair_scorer.Evaluation._normalize():
-    - Case-fold to lowercase
-    - Remove soft hyphens and line breaks (¬\n)
-    - Replace non-word characters with spaces (Unicode-aware)
-    - Replace underscores with spaces
-    - Collapse whitespace
-    """
-    text = text.lower()
-    text = text.replace("¬\n", "")
-    text = re.sub(r"[^\w]", " ", text, flags=re.UNICODE)
-    text = re.sub(r"_", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    text = text.strip()
-    return text
-
-
-def apply_normalizations(records: list[dict]) -> list[dict]:
-    """Apply evaluator-style normalization to all transcription_unit fields.
-
-    Modifies transcription_unit in:
-    - ocr_hypothesis
-    - ground_truth
-    - ocr_postcorrection_output
-    """
-    normalized = []
-    for record in records:
-        record_copy = record.copy()
-        for channel_key in [
-            "ocr_hypothesis",
-            "ground_truth",
-            "ocr_postcorrection_output",
-        ]:
-            if (
-                channel_key in record_copy
-                and "transcription_unit" in record_copy[channel_key]
-            ):
-                text = record_copy[channel_key]["transcription_unit"]
-                if isinstance(text, str):
-                    record_copy[channel_key] = record_copy[channel_key].copy()
-                    record_copy[channel_key]["transcription_unit"] = (
-                        normalize_text_for_eval(text)
-                    )
-        normalized.append(record_copy)
-    return normalized
-
-
-def normalize_text_for_eval(text: str) -> str:
-    """Normalize text using the same policy as the evaluator.
-
-    This matches the Evaluation._normalize() method from hipe_ocrepair_scorer
-    exactly:
-    - Case-fold to lowercase
-    - Remove soft-hyphen + newline sequences (¬\n)
-    - Replace non-word characters with spaces (re.UNICODE)
-    - Replace underscores with spaces
-    - Collapse whitespace and trim
-
-    Evaluation is case-insensitive and punctuation-insensitive, but
-    sensitive to accented characters (é ≠ e).
-    """
-    text = text.lower()
-    text = text.replace("¬\n", "")
-    text = re.sub(r"[^\w]", " ", text, flags=re.UNICODE)
-    text = re.sub(r"_", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    text = text.strip()
-    return text
-
-
 def apply_normalizations(records: list[dict]) -> list[dict]:
     """Apply evaluator-style normalization to all transcription_unit fields."""
     normalized_records = []
@@ -150,7 +78,7 @@ def apply_normalizations(records: list[dict]) -> list[dict]:
             if channel_key in normalized:
                 channel = normalized[channel_key].copy()
                 if "transcription_unit" in channel:
-                    channel["transcription_unit"] = normalize_text_for_eval(
+                    channel["transcription_unit"] = norm(
                         channel["transcription_unit"]
                     )
                 normalized[channel_key] = channel
