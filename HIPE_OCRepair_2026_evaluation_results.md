@@ -1,6 +1,6 @@
 # HIPE-OCRepair 2026 – Evaluation Results
 
-- **Generated**: 2026-04-11 02:41:14
+- **Generated**: 2026-04-11 04:55:20
 - **Scorer**: hipe-ocrepair-scorer v0.9.4
 - **Benchmark**: hipe-ocrepair-bench v0.9
 
@@ -112,12 +112,12 @@ Scores are computed separately for each official test set. Overall benchmark sco
 
 | Rank | System | Overall cMER ↓ | 95% CI¹ | Overall Pref Macro ↑ | 95% CI¹ | Test sets |
 |------|--------|----------------|---------|----------------------|---------|----------|
-| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_run1 | 0.0065 | [0.005, 0.008] | 0.8465 | [0.777, 0.903] | 8/8 |
-| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_run3 | 0.0087 | [0.007, 0.011] | 0.8292 | [0.753, 0.892] | 8/8 |
-| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_run2 | 0.0095 | [0.007, 0.012] | 0.8560 | [0.766, 0.929] | 8/8 |
-| 4 | blocr_hipe-ocrepair-bench_v0.9_run1 | 0.0148 | [0.011, 0.020] | 0.6236 | [0.507, 0.729] | 8/8 |
-| 5 | l3i_hipe-ocrepair-bench_v0.9_run1 | 0.0180 | [0.014, 0.022] | 0.3433 | [0.223, 0.458] | 8/8 |
-| 7 | baseline-no-correction_hipe-ocrepair-bench_v0.9_run1 | 0.0228 | [0.019, 0.026] | 0.0000 | [0.000, 0.000] | 8/8 |
+| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_run1 | 0.0050 | [0.004, 0.006] | 0.9271 | [0.870, 0.971] | 8/8 |
+| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_run3 | 0.0072 | [0.005, 0.009] | 0.9158 | [0.853, 0.966] | 8/8 |
+| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_run2 | 0.0094 | [0.007, 0.012] | 0.8615 | [0.777, 0.931] | 8/8 |
+| 4 | blocr_hipe-ocrepair-bench_v0.9_run1 | 0.0127 | [0.009, 0.018] | 0.7271 | [0.609, 0.834] | 8/8 |
+| 5 | l3i_hipe-ocrepair-bench_v0.9_run1 | 0.0177 | [0.014, 0.022] | 0.3425 | [0.223, 0.457] | 8/8 |
+| 8 | baseline-no-correction_hipe-ocrepair-bench_v0.9_run1 | 0.0226 | [0.019, 0.026] | -0.0062 | [-0.013, -0.001] | 8/8 |
 
 #### Systems with incomplete test set coverage
 
@@ -125,8 +125,8 @@ _Systems that have not processed all test sets are shown separately and not incl
 
 | Rank | System | Overall cMER ↓ | 95% CI¹ | Overall Pref Macro ↑ | 95% CI¹ | Test sets |
 |------|--------|----------------|---------|----------------------|---------|----------|
+| — | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_run1 | 0.0215 | [0.015, 0.031] | 0.4390 | [0.282, 0.590] | 7/8 |
 | — | l3i_hipe-ocrepair-bench_v0.9_run2 | 0.0221 | [0.019, 0.026] | -0.0933 | [-0.203, 0.017] | 3/8 |
-| — | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_run1 | 0.0231 | [0.016, 0.032] | 0.3603 | [0.215, 0.500] | 7/8 |
 
 See [ranking-overall-test-weighted.tsv](results/system-rankings/ranking-overall-test-weighted.tsv) for full details.
 
@@ -140,12 +140,12 @@ Per-language rankings are computed in the same way as the overall ranking, but r
 
 | Rank | System | Language cMER ↓ | 95% CI¹ | Language Pref Macro ↑ | 95% CI¹ | Test sets |
 |------|--------|-----------------|---------|----------------------|---------|----------|
-| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_run1 | 0.0107 | [0.008, 0.013] | 0.6696 | [0.587, 0.745] | 4/4 |
-| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_run2 | 0.0116 | [0.009, 0.014] | 0.8479 | [0.760, 0.918] | 4/4 |
-| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_run3 | 0.0139 | [0.011, 0.017] | 0.6075 | [0.493, 0.705] | 4/4 |
-| 4 | l3i_hipe-ocrepair-bench_v0.9_run1 | 0.0216 | [0.019, 0.025] | 0.3750 | [0.259, 0.483] | 4/4 |
-| 5 | blocr_hipe-ocrepair-bench_v0.9_run1 | 0.0279 | [0.019, 0.039] | 0.2808 | [0.133, 0.422] | 4/4 |
-| 7 | baseline-no-correction_hipe-ocrepair-bench_v0.9_run1 | 0.0293 | [0.027, 0.032] | 0.0000 | [0.000, 0.000] | 4/4 |
+| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_run1 | 0.0060 | [0.005, 0.007] | 0.9113 | [0.866, 0.949] | 4/4 |
+| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_run3 | 0.0092 | [0.007, 0.011] | 0.8675 | [0.795, 0.927] | 4/4 |
+| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_run2 | 0.0111 | [0.009, 0.013] | 0.8646 | [0.791, 0.922] | 4/4 |
+| 4 | l3i_hipe-ocrepair-bench_v0.9_run1 | 0.0206 | [0.018, 0.024] | 0.3725 | [0.259, 0.481] | 4/4 |
+| 5 | blocr_hipe-ocrepair-bench_v0.9_run1 | 0.0216 | [0.014, 0.032] | 0.5913 | [0.437, 0.737] | 4/4 |
+| 6 | baseline-no-correction_hipe-ocrepair-bench_v0.9_run1 | 0.0285 | [0.026, 0.032] | -0.0187 | [-0.037, -0.004] | 4/4 |
 
 #### Systems with incomplete test set coverage
 
@@ -154,7 +154,7 @@ _Systems that have not processed all test sets are shown separately and not incl
 | Rank | System | Language cMER ↓ | 95% CI¹ | Language Pref Macro ↑ | 95% CI¹ | Test sets |
 |------|--------|-----------------|---------|----------------------|---------|----------|
 | — | l3i_hipe-ocrepair-bench_v0.9_run2 | 0.0287 | [0.024, 0.033] | 0.0200 | [-0.090, 0.130] | 1/4 |
-| — | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_run1 | 0.0352 | [0.027, 0.045] | -0.2390 | [-0.391, -0.083] | 3/4 |
+| — | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_run1 | 0.0297 | [0.022, 0.040] | 0.0285 | [-0.163, 0.223] | 3/4 |
 
 See [ranking-language-de-test-weighted.tsv](results/system-rankings/ranking-language-de-test-weighted.tsv) for full details.
 
@@ -212,13 +212,13 @@ cMER micro [`cmer_micro`] — ordered ascending (lower is better)
 
 | Rank | System | cMER micro ↓ | 95% CI | Pref cMER Macro ↑ | 95% CI | cMER macro | wMER macro |
 |------|--------|--------------|--------|--------------|--------|------------|------------|
-| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run2 | 0.0026 | [0.002, 0.003] | 0.4250 | [0.263, 0.575] | 0.0025 | 0.0172 |
-| 2 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0030 | [0.003, 0.004] | 0.0000 | [0.000, 0.000] | 0.0031 | 0.0199 |
-| 3 | l3i_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0050 | [0.004, 0.006] | -0.3250 | [-0.425, -0.225] | 0.0062 | 0.0348 |
-| 4 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run3 | 0.0096 | [0.007, 0.013] | -0.2125 | [-0.375, -0.050] | 0.0105 | 0.0654 |
-| 5 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0105 | [0.008, 0.014] | -0.3125 | [-0.487, -0.125] | 0.0112 | 0.0698 |
-| 6 | blocr_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0237 | [0.019, 0.029] | -0.8625 | [-0.950, -0.762] | 0.0244 | 0.1318 |
-| 7 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0350 | [0.024, 0.052] | -0.9250 | [-0.988, -0.850] | 0.0274 | 0.1416 |
+| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0048 | [0.004, 0.007] | 0.5875 | [0.438, 0.725] | 0.0049 | 0.0334 |
+| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run3 | 0.0052 | [0.004, 0.006] | 0.4125 | [0.263, 0.562] | 0.0053 | 0.0445 |
+| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run2 | 0.0057 | [0.005, 0.006] | 0.4125 | [0.250, 0.562] | 0.0056 | 0.0534 |
+| 4 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0065 | [0.005, 0.007] | -0.0625 | [-0.125, -0.013] | 0.0067 | 0.0609 |
+| 5 | blocr_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0084 | [0.006, 0.011] | -0.0875 | [-0.287, 0.113] | 0.0083 | 0.0395 |
+| 6 | l3i_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0085 | [0.007, 0.010] | -0.3750 | [-0.487, -0.275] | 0.0098 | 0.0760 |
+| 7 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_dta19-l0_v0.1_masked-test_de_run1 | 0.0208 | [0.010, 0.039] | -0.4750 | [-0.650, -0.287] | 0.0130 | 0.0485 |
 
 See [ranking-dta19-l0_v0.1-test-de-cmer-micro.tsv](results/system-rankings/ranking-dta19-l0_v0.1-test-de-cmer-micro.tsv) for full details.
 
@@ -230,13 +230,13 @@ cMER micro [`cmer_micro`] — ordered ascending (lower is better)
 
 | Rank | System | cMER micro ↓ | 95% CI | Pref cMER Macro ↑ | 95% CI | cMER macro | wMER macro |
 |------|--------|--------------|--------|--------------|--------|------------|------------|
-| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run2 | 0.0084 | [0.006, 0.011] | 0.8625 | [0.750, 0.963] | 0.0097 | 0.0558 |
-| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0138 | [0.011, 0.017] | 0.4500 | [0.250, 0.625] | 0.0152 | 0.0969 |
-| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run3 | 0.0172 | [0.014, 0.021] | 0.1375 | [-0.075, 0.338] | 0.0187 | 0.1144 |
-| 4 | l3i_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0212 | [0.019, 0.023] | -0.0250 | [-0.150, 0.100] | 0.0238 | 0.1355 |
-| 5 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0227 | [0.022, 0.024] | 0.0000 | [0.000, 0.000] | 0.0223 | 0.1402 |
-| 6 | blocr_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0275 | [0.024, 0.031] | -0.3125 | [-0.525, -0.100] | 0.0299 | 0.1482 |
-| 7 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0384 | [0.034, 0.043] | -0.7500 | [-0.875, -0.613] | 0.0399 | 0.1831 |
+| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0052 | [0.004, 0.006] | 1.0000 | [1.000, 1.000] | 0.0057 | 0.0422 |
+| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run3 | 0.0072 | [0.006, 0.008] | 0.9625 | [0.900, 1.000] | 0.0080 | 0.0476 |
+| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run2 | 0.0084 | [0.007, 0.011] | 0.9375 | [0.863, 1.000] | 0.0100 | 0.0626 |
+| 4 | blocr_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0172 | [0.016, 0.019] | 0.6500 | [0.487, 0.812] | 0.0187 | 0.0965 |
+| 5 | l3i_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0222 | [0.020, 0.024] | -0.0250 | [-0.150, 0.100] | 0.0256 | 0.1611 |
+| 6 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0240 | [0.024, 0.025] | -0.0500 | [-0.100, -0.013] | 0.0244 | 0.1683 |
+| 7 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1 | 0.0250 | [0.023, 0.028] | 0.1375 | [-0.075, 0.350] | 0.0264 | 0.0984 |
 
 See [ranking-dta19-l1_v0.1-test-de-cmer-micro.tsv](results/system-rankings/ranking-dta19-l1_v0.1-test-de-cmer-micro.tsv) for full details.
 
@@ -248,12 +248,12 @@ cMER micro [`cmer_micro`] — ordered ascending (lower is better)
 
 | Rank | System | cMER micro ↓ | 95% CI | Pref cMER Macro ↑ | 95% CI | cMER macro | wMER macro |
 |------|--------|--------------|--------|--------------|--------|------------|------------|
-| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0225 | [0.019, 0.027] | 1.0000 | [1.000, 1.000] | 0.0255 | 0.1434 |
-| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run2 | 0.0233 | [0.020, 0.027] | 0.9500 | [0.875, 1.000] | 0.0262 | 0.1262 |
-| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run3 | 0.0279 | [0.024, 0.033] | 0.9000 | [0.800, 0.975] | 0.0318 | 0.1614 |
-| 4 | l3i_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0549 | [0.051, 0.059] | 0.2000 | [0.087, 0.325] | 0.0596 | 0.2828 |
-| 5 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0611 | [0.060, 0.062] | 0.0000 | [0.000, 0.000] | 0.0616 | 0.3086 |
-| 6 | blocr_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0833 | [0.047, 0.133] | 0.5500 | [0.350, 0.725] | 0.0670 | 0.2195 |
+| 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0089 | [0.008, 0.010] | 1.0000 | [1.000, 1.000] | 0.0099 | 0.0589 |
+| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run3 | 0.0153 | [0.013, 0.018] | 0.9500 | [0.875, 1.000] | 0.0180 | 0.0876 |
+| 3 | bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run2 | 0.0171 | [0.015, 0.019] | 0.9875 | [0.963, 1.000] | 0.0192 | 0.0873 |
+| 4 | l3i_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0453 | [0.041, 0.049] | 0.1750 | [0.062, 0.300] | 0.0487 | 0.2267 |
+| 5 | baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0518 | [0.050, 0.054] | 0.0000 | [0.000, 0.000] | 0.0507 | 0.2543 |
+| 6 | blocr_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1 | 0.0712 | [0.034, 0.122] | 0.6750 | [0.500, 0.825] | 0.0524 | 0.1431 |
 
 See [ranking-dta19-l2_v0.1-test-de-cmer-micro.tsv](results/system-rankings/ranking-dta19-l2_v0.1-test-de-cmer-micro.tsv) for full details.
 
@@ -300,10 +300,10 @@ cMER micro [`cmer_micro`] — ordered ascending (lower is better)
 | Rank | System | cMER micro ↓ | 95% CI | Pref cMER Macro ↑ | 95% CI | cMER macro | wMER macro |
 |------|--------|--------------|--------|--------------|--------|------------|------------|
 | 1 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 | 0.0058 | [0.004, 0.007] | 0.9600 | [0.920, 0.990] | 0.0067 | 0.0418 |
-| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run3 | 0.0096 | [0.007, 0.012] | 0.9400 | [0.870, 0.990] | 0.0108 | 0.0526 |
+| 2 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run3 | 0.0092 | [0.007, 0.011] | 0.9600 | [0.910, 1.000] | 0.0104 | 0.0503 |
 | 3 | blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 | 0.0109 | [0.009, 0.013] | 0.7700 | [0.640, 0.890] | 0.0118 | 0.0438 |
 | 4 | bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run2 | 0.0117 | [0.009, 0.015] | 0.9500 | [0.890, 0.990] | 0.0132 | 0.0537 |
-| 5 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 | 0.0161 | [0.013, 0.020] | 0.8000 | [0.680, 0.900] | 0.0185 | 0.0730 |
+| 5 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 | 0.0158 | [0.012, 0.019] | 0.8200 | [0.710, 0.920] | 0.0182 | 0.0711 |
 | 6 | l3i_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run2 | 0.0287 | [0.024, 0.033] | 0.0200 | [-0.090, 0.130] | 0.0313 | 0.1679 |
 | 7 | baseline-no-correction_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 | 0.0296 | [0.025, 0.034] | 0.0000 | [0.000, 0.000] | 0.0319 | 0.1773 |
 | 8 | Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1 | 0.0342 | [0.026, 0.044] | 0.1600 | [-0.030, 0.350] | 0.0388 | 0.0995 |
