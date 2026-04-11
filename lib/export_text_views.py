@@ -65,6 +65,25 @@ def derive_reference_stem(hypothesis_path: Path) -> str:
     return stem
 
 
+def filter_excluded_records(records: list[dict]) -> tuple[list[dict], int]:
+    """Filter out records marked for exclusion from evaluation.
+    
+    Returns:
+        (filtered_records, excluded_count)
+    """
+    filtered = []
+    excluded_count = 0
+    for record in records:
+        is_excluded = record.get("ground_truth", {}).get(
+            "exclude_from_icdar_evaluation", False
+        )
+        if not is_excluded:
+            filtered.append(record)
+        else:
+            excluded_count += 1
+    return filtered, excluded_count
+
+
 def apply_normalizations(records: list[dict]) -> list[dict]:
     """Apply evaluator-style normalization to all transcription_unit fields."""
     normalized_records = []
@@ -154,6 +173,16 @@ def main() -> None:
         sys.exit(1)
 
     logging.debug("Aligned %d records", len(merged))
+
+    # Filter out excluded records (e.g., DTA records marked for exclusion)
+    merged, excluded_count = filter_excluded_records(merged)
+    if excluded_count > 0:
+        logging.info("Excluded %d records marked with exclude_from_icdar_evaluation", excluded_count)
+    logging.debug("Retained %d records after filtering", len(merged))
+
+    if not merged:
+        logging.error("No records remaining after filtering excluded records")
+        sys.exit(1)
 
     if args.apply_normalizations:
         logging.info("Applied evaluator-style normalizations to exported text views")
