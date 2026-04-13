@@ -208,7 +208,8 @@ Only the following datasets are part of the official ICDAR 2026 competition eval
 - `impresso-snippets` (`de`, `en`, `fr`)
 - `dta19-l0`, `dta19-l1`, `dta19-l2` (`de`)
 
-`impresso-nzz` and `overproof-combined` are HIPE-OCRepair-bench datasets, but they are not part of the official ICDAR 2026 competition evaluation.
+`impresso-nzz` and `overproof-combined` are part of HIPE-OCRepair-bench, but 
+are not part of the competition evaluation.
 
 The exact versioned dataset identifiers are:
 
@@ -222,7 +223,8 @@ The exact versioned dataset identifiers are:
 | dta19 (level 2)   | `dta19-l2_v0.1`              | de          |
 | overproof         | `overproof-combined_v1.0`    | en          |
 
-**Note on DTA test sets:** After test set creation, it was discovered that some DTA snippets lack coherent paragraph structure, with content from different lines mixed together. This makes meaningful OCR post-correction challenging, particularly for LLM-based approaches. To ensure fair evaluation, the DTA test sets (all three noise levels: `dta19-l0`, `dta19-l1`, `dta19-l2`) were reduced from 80 to 30 transcription units each, retaining only documents from the three most coherent books:
+#### Note on DTA test sets:
+After test set creation, it was discovered that some DTA snippets lack coherent paragraph structure, with content from different lines mixed together. This makes meaningful OCR post-correction challenging, particularly for LLM-based approaches. To ensure fair evaluation, the DTA test sets (all three noise levels: `dta19-l0`, `dta19-l1`, `dta19-l2`) were reduced from 80 to 30 transcription units each, retaining only documents from the three most coherent books:
 
 - `1802-novalis_ofterdingen` (10 transcription units)
 - `1815-hoffmann_elixiere01` (10 transcription units)
@@ -230,7 +232,9 @@ The exact versioned dataset identifiers are:
 
 The following five books were excluded from all DTA test sets: `1817-hoffmann_nachtstuecke01`, `1832-lenau_gedichte`, `1834-wienbarg_feldzuege`, `1852-alexis_ruhe01`, and `1863-schleiden_menschengeschlecht`.
 
-For more information on data, please refer to the [data section](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/blob/main/README-Participation-Guidelines.md#5-evaluation-campaign-and-system-responses) of the participation guidelines of the [HIPE-OCRepair-2026 data repository](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/tree/main/.)
+
+For more information on data, please refer to the [data section](https://github.
+com/hipe-eval/HIPE-OCRepair-2026-data/blob/main/README-Participation-Guidelines.md#5-evaluation-campaign-and-system-responses) of the participation guidelines of the [HIPE-OCRepair-2026 data repository](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/tree/main/).
 
 ## Evaluation outputs
 
