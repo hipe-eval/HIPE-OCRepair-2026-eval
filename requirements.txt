@@ -1,1 +1,1 @@
-hipe-ocrepair-scorer>=0.9.7
+hipe-ocrepair-scorer>=0.9.9

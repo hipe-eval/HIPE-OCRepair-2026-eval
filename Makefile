@@ -28,7 +28,7 @@ EXPORT_TEXT_VIEWS_NORMALIZE_FLAG := $(if $(filter 1 true yes on,$(EXPORT_TEXT_VI
 
 TEAMS_JSON         := lib/teams.json
 COMPETITION_CONFIG := lib/competition_config.json
-SCORER_VERSION     := 0.9.7
+SCORER_VERSION     := 0.9.9
 DATA_VERSION       := v0.9
 
 SUBMISSIONS           := $(wildcard $(SUBMISSIONS_DIR)/*.jsonl)
@@ -159,8 +159,15 @@ pairwise-overlaps-dummy: | $(RANKINGS_DIR_DUMMY)
 		--output results-dummy/pairwise-overlaps.tsv \
 		--verbose
 
+
 .PHONY: eval-full
-eval-full: score rankings results-md export-text-views export-text-views-normalized pairwise-overlaps
+eval-full: 
+	$(MAKE) score
+	$(MAKE) rankings
+	$(MAKE) results-md
+	$(MAKE) export-text-views
+	$(MAKE) export-text-views-normalized
+	$(MAKE) pairwise-overlaps
 
 .PHONY: eval-full-dummy
 eval-full-dummy:
@@ -174,7 +181,7 @@ eval-full-refresh:
 	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(TEXT_VIEWS_DIR) $(TEXT_VIEWS_DIR_NORMALIZED) $(RESULTS_MD)
 	rm -f results/pairwise-overlaps.tsv
 	$(MAKE) eval-full
-	$(MAKE) results-md
+
 
 .PHONY: clean-dummy
 clean-dummy:
@@ -192,21 +199,10 @@ help:
 	@echo "HIPE-OCRepair-2026 evaluation pipeline"
 	@echo ""
 	@echo "End-to-end targets:"
-	@echo "  eval-full-dummy    Generate dummy baselines, score them, build rankings and MD (uses results-dummy/)"
 	@echo "  eval-full          Score real submissions, build rankings, results MD, text views, and pairwise tests (uses results/)"
 	@echo "  eval-full-refresh  Remove all derived real files and re-run eval-full from scratch"
 	@echo ""
-	@echo "Dummy pipeline step-by-step (all output under results-dummy/):"
-	@echo "  baselines-dummy    Generate dummy baselines from $(REFERENCE_DIR_DUMMY) into $(SUBMISSIONS_DUMMY_DIR)"
-	@echo "  validate-submissions-dummy  Validate dummy submissions against the JSON schema"
-	@echo "  export-text-views-dummy  Export aligned orig/gth/cor multiline text files to results-dummy/text-views/"
-	@echo "  export-text-views-dummy-normalized  Export with evaluator normalization to results-dummy/text-views-normalized/"
-	@echo "  score-dummy        Score all files in $(SUBMISSIONS_DUMMY_DIR)"
-	@echo "  rankings-dummy     Build per-test-set and overall ranking TSVs"
-	@echo "  results-md-dummy   Render $(RESULTS_MD_DUMMY)"
-	@echo "  pairwise-overlaps-dummy  Test systems with overlapping CIs (outputs results-dummy/pairwise-overlaps.tsv)"
-	@echo ""
-	@echo "Real pipeline step-by-step (all output under results/):"
+	@echo "Pipeline step-by-step (all output under results/):"
 	@echo "  validate-submissions  Validate real submissions in $(SUBMISSIONS_DIR) against the JSON schema"
 	@echo "  baseline-no-correction  Generate no-correction baseline from real reference files"
 	@echo "  export-text-views  Export aligned orig/gth/cor multiline text files to results/text-views/"
@@ -225,14 +221,9 @@ help:
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean              Remove results/, $(RESULTS_MD)"
-	@echo "  clean-dummy        Remove results-dummy/, $(RESULTS_MD_DUMMY), and generated baselines"
 	@echo ""
 	@echo "Override variables:"
 	@echo "  REFERENCE_DIR        Real reference JSONL directory     (default: data/reference)"
-	@echo "  REFERENCE_DIR_DUMMY  Dummy reference JSONL directory    (default: data/reference-dummy)"
 	@echo "  SCHEMA_PATH          Optional JSON schema override      (default: lib/schema.json)"
-	@echo "  SUBMISSIONS_DUMMY_DIR  Dummy hypothesis directory       (default: $(SUBMISSIONS_DUMMY_DIR))"
 	@echo "  EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS  1/true to pass --apply-normalizations (default: $(EXPORT_TEXT_VIEWS_APPLY_NORMALIZATIONS))"
-	@echo "  DUMMY_BASELINE_SWAP_CHARS  Character swap ratios        (default: $(DUMMY_BASELINE_SWAP_CHARS))"
-	@echo "  DUMMY_BASELINE_SWAP_WORDS  Word swap ratios             (default: $(DUMMY_BASELINE_SWAP_WORDS))"
 	@echo ""
