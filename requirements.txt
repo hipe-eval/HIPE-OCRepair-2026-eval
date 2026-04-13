@@ -1,1 +1,1 @@
-hipe-ocrepair-scorer @ git+https://github.com/hipe-eval/HIPE-OCRepair-scorer.git@fix-norm
+hipe-ocrepair-scorer>=0.9.7
