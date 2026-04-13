@@ -194,38 +194,51 @@ Only the following datasets are part of the official shared-task evaluation in t
 
 `impresso-nzz` and `overproof-combined` are benchmark datasets, but they are never part of the official shared-task evaluation or rankings in this repository.
 
-### Dry-run with dummy data
+**Note:** The repository contains dummy reference files in `data/reference-dummy/` and associated test outputs for pipeline testing purposes. See the Makefile for commands prefixed with `*-dummy` to run the isolated dummy pipeline.
 
-Before real submissions arrive, you can test the full pipeline end-to-end using synthetic baselines generated from the reference files in `data/reference-dummy/`.
+### Evaluation outputs
 
-The dummy pipeline is **fully isolated** from the real pipeline: it reads from `data/reference-dummy/` and writes to `results-dummy/` and `HIPE_OCRepair_2026_evaluation_results_dummy.md`. Running it never touches `results/` or the real results file.
+The `results/` directory contains detailed scoring information and qualitative analysis aids:
+
+#### Per-run scores
+
+`results/per-run/` contains detailed JSON files for each submission with:
+
+- Aggregated scores (`cmer_micro`, `cmer_macro`, `wmer_micro`, `wmer_macro`, preference scores)
+- 95% bootstrap confidence intervals
+- Per-dataset fold scores
+- `.log` files with scorer output
+
+#### Rankings
+
+`results/system-rankings/` contains TSV files with system rankings:
+
+- Per-dataset rankings: `ranking-<dataset>-<split>-<lang>-cmer-micro.tsv`
+- Per-language weighted rankings: `ranking-language-<lang>-test-weighted.tsv`
+- Overall competition ranking: `ranking-overall-test-weighted.tsv`
+
+Rankings show systems ordered by primary metric (`cmer_micro`), with secondary criterion (`pref_score_cmer_macro`) and confidence intervals.
+
+#### Qualitative error analysis
+
+For qualitative error inspection, the evaluation pipeline exports plain text views that can be compared using standard diff tools:
+
+- **`results/text-views/`**: Original text views with three files per submission:
+  - `.orig.txt` — original OCR input
+  - `.cor.txt` — system-corrected output
+  - `.gth.txt` — ground truth reference
+
+- **`results/text-views-normalized/`**: Same structure but with normalized texts (lowercased, punctuation removed, whitespace collapsed) — exactly as used during scoring
+
+To inspect errors for a specific run, compare files with any diff tool:
 
 ```bash
-make eval-full-dummy   # clean → generate baselines → score → rankings → MD
+# Compare system output to ground truth (normalized view)
+diff results/text-views-normalized/<runname>.cor.txt results/text-views-normalized/<runname>.gth.txt
+
+# Or use a visual diff tool
+code --diff results/text-views-normalized/<runname>.cor.txt results/text-views-normalized/<runname>.gth.txt
 ```
-
-Step by step:
-
-```bash
-make baselines-dummy   # Generate dummy baselines in data/systems-dummy/
-make score-dummy       # Score all files in data/systems-dummy/
-make rankings-dummy    # Build per-test-set and overall ranking TSVs in results-dummy/system-rankings/
-make results-md-dummy  # Render HIPE_OCRepair_2026_evaluation_results_dummy.md
-make clean-dummy       # Remove all dummy-pipeline outputs and generated baselines
-```
-
-To test against a different set of reference files:
-
-```bash
-make eval-full-dummy REFERENCE_DIR_DUMMY=path/to/your/references
-```
-
-**Baseline strategies** are generated automatically, including exact-copy and corruption-based variants. Depending on the command used, these may include:
-
-- `perfect_*_run1.jsonl` — perfect baseline (copies ground truth unchanged; expected cMER = 0)
-- `no-correction_*_run1.jsonl` — identity baseline (copies OCR input unchanged; expected cMER ≈ raw OCR error rate)
-- `char-swaps-*` — corruption baseline that swaps a specified proportion of adjacent character pairs in the ground truth
-- `word-swaps-*` — corruption baseline that swaps a specified proportion of adjacent word pairs in the ground truth
 
 ### Metrics and rankings
 
