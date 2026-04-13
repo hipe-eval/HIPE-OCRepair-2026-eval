@@ -21,11 +21,13 @@ The repository is designed to ensure transparent and reproducible evaluation of 
 ## Table of Contents
 
 - [Task](#task)
-- [Repository structure](#repository-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-  - [To run the evaluation](#to-run-the-evaluation)
+- [Repository setup](#repository-set-up)
+  - [Repository structure](#repository-structure)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+    - [To run the evaluation](#to-run-the-evaluation)
 - [Submission format](#submission-format)
+- [Official competition data](#official-competition-data)
 - [Evaluation outputs](#evaluation-outputs)
   - [Per-run scores](#per-run-scores)
   - [Rankings](#rankings)
@@ -41,13 +43,15 @@ The repository is designed to ensure transparent and reproducible evaluation of 
   - [Per-language rankings](#per-language-rankings)
 - [Results](#results)
 
-### Task
+## Task
 
 The shared task focuses on OCR post-correction for historical documents. Participants develop systems that automatically correct OCR errors in historical text transcription units that are larger than a single line. Depending on the dataset, a transcription unit may correspond to a paragraph, article, page, or semantic chunk, allowing systems to make more global corrections than line-level post-correction.
 
 Inputs include the OCR text to correct together with document metadata used for matching and contextualisation.
 
 System outputs are evaluated against gold-standard reference data using the official evaluation scorer, which applies a light normalization to the reference and hypothesis texts before scoring.
+
+## Repository set up
 
 ### Repository structure
 
@@ -132,7 +136,7 @@ make eval-full-refresh  # Remove all derived files and re-run from scratch
 
 Run `make` to see all available targets.
 
-### Submission format
+## Submission format
 
 Submission files are JSONL files (one JSON object per line). Teams submit them by email. After an organizer-side format check, validated submissions are added to this repository under `data/systems/`, and team metadata is updated in `lib/teams.json`.
 
@@ -190,6 +194,22 @@ Expanded, this gives:
 - `<language>`: `en`, `de`, or `fr`
 - `run<N>`: `run1`, `run2`, or `run3` — up to 3 runs per reference file per team
 
+Example submission file: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1.jsonl`
+
+Matching reference file in `data/reference/`: `hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_de.jsonl`
+
+All submission files will be placed in `data/systems/`.
+
+### Official competition data
+
+Only the following datasets are part of the official ICDAR 2026 competition evaluation in this repository:
+
+- `icdar2017` (`en`, `fr`)
+- `impresso-snippets` (`de`, `en`, `fr`)
+- `dta19-l0`, `dta19-l1`, `dta19-l2` (`de`)
+
+`impresso-nzz` and `overproof-combined` are HIPE-OCRepair-bench datasets, but they are not part of the official ICDAR 2026 competition evaluation.
+
 The exact versioned dataset identifiers are:
 
 | Source dataset    | Versioned dataset identifier | Language(s) |
@@ -202,20 +222,6 @@ The exact versioned dataset identifiers are:
 | dta19 (level 2)   | `dta19-l2_v0.1`              | de          |
 | overproof         | `overproof-combined_v1.0`    | en          |
 
-Example submission file: `myteam_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_de_run1.jsonl`
-
-Matching reference file in `data/reference/`: `hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_de.jsonl`
-
-All submission files will be placed in `data/systems/`.
-
-Only the following datasets are part of the official shared-task evaluation in this repository:
-
-- `icdar2017` (`en`, `fr`)
-- `impresso-snippets` (`de`, `en`, `fr`)
-- `dta19-l0`, `dta19-l1`, `dta19-l2` (`de`)
-
-`impresso-nzz` and `overproof-combined` are benchmark datasets, but they are never part of the official shared-task evaluation or rankings in this repository.
-
 **Note on DTA test sets:** After test set creation, it was discovered that some DTA snippets lack coherent paragraph structure, with content from different lines mixed together. This makes meaningful OCR post-correction challenging, particularly for LLM-based approaches. To ensure fair evaluation, the DTA test sets (all three noise levels: `dta19-l0`, `dta19-l1`, `dta19-l2`) were reduced from 80 to 30 transcription units each, retaining only documents from the three most coherent books:
 
 - `1802-novalis_ofterdingen` (10 transcription units)
@@ -224,11 +230,13 @@ Only the following datasets are part of the official shared-task evaluation in t
 
 The following five books were excluded from all DTA test sets: `1817-hoffmann_nachtstuecke01`, `1832-lenau_gedichte`, `1834-wienbarg_feldzuege`, `1852-alexis_ruhe01`, and `1863-schleiden_menschengeschlecht`.
 
-### Evaluation outputs
+For more information on data, please refer to the [data section](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/blob/main/README-Participation-Guidelines.md#5-evaluation-campaign-and-system-responses) of the participation guidelines of the [HIPE-OCRepair-2026 data repository](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/tree/main/.)
+
+## Evaluation outputs
 
 The `results/` directory contains detailed scoring information and qualitative analysis aids:
 
-#### Per-run scores
+### Per-run scores
 
 `results/per-run/` contains detailed JSON files for each submission with:
 
@@ -237,7 +245,7 @@ The `results/` directory contains detailed scoring information and qualitative a
 - Per-dataset fold scores
 - `.log` files with scorer output
 
-#### Rankings
+### Rankings
 
 `results/system-rankings/` contains TSV files with system rankings:
 
@@ -247,7 +255,7 @@ The `results/` directory contains detailed scoring information and qualitative a
 
 Rankings show systems ordered by primary metric (`cmer_micro`), with secondary criterion (`pref_score_cmer_macro`) and confidence intervals.
 
-#### Qualitative error analysis
+### Qualitative error analysis
 
 For qualitative error inspection, the evaluation pipeline exports plain text views that can be compared using standard diff tools:
 
@@ -268,7 +276,7 @@ diff results/text-views-normalized/<runname>.cor.txt results/text-views-normaliz
 code --diff results/text-views-normalized/<runname>.cor.txt results/text-views-normalized/<runname>.gth.txt
 ```
 
-#### Pairwise significance testing
+### Pairwise significance testing
 
 While ranking tables show 95% confidence intervals for each system, overlapping CIs cannot definitively determine whether two systems are significantly different. To address this, pairwise significance testing using paired bootstrap methods is available.
 
@@ -290,7 +298,7 @@ For detailed documentation on interpretation and use cases:
 - [PAIRWISE_TESTING.md](PAIRWISE_TESTING.md) — Full statistical methodology and analysis guide
 - [QUICKSTART_PAIRWISE.md](QUICKSTART_PAIRWISE.md) — Quick start guide with practical examples
 
-### Metrics and rankings
+## Metrics and rankings
 
 The primary evaluation metric is **character-level Match Error Rate (cMER)**. Secondary metrics include word-level MER and preference-based comparison scores against the raw OCR baseline.
 
@@ -305,7 +313,7 @@ Evaluation is therefore **case-insensitive** and **punctuation-insensitive**, bu
 
 A cMER of 0.05 means that the hypothesis and reference differ by 5% at the character level.
 
-#### Aggregation levels
+### Aggregation levels
 
 Each test dataset consists of a set of **transcription units**. All metrics are first computed at the level of individual transcription units and then aggregated.
 
@@ -320,7 +328,7 @@ In other words:
 - **micro** aggregation gives more weight to longer transcription units in a test set
 - **macro** aggregation gives equal weight to each transcription unit in a test set
 
-#### Metric definitions used in the reports
+### Metric definitions used in the reports
 
 The evaluation reports show the following metrics:
 
@@ -378,7 +386,7 @@ The reported preference metrics are macro averages over transcription units:
 \frac{1}{N} \sum_{i=1}^{N} \mathrm{pref\_cMER}(i)
 ```
 
-#### Confidence intervals
+### Confidence intervals
 
 The report tables include **95% bootstrap confidence intervals** for **`cmer_micro`** and **`pref_score_cmer_macro`**. These intervals are based on **10,000 bootstrap resamples** of the transcription units.
 
@@ -390,7 +398,7 @@ percentiles** of the bootstrap distribution. In `fold_scores`, each metric is st
 mean across datasets, and the confidence interval is obtained from the mean of the
 per-dataset bootstrap samples.
 
-#### Per-dataset scores and overall averages
+### Per-dataset scores and overall averages
 
 Scoring is performed **per dataset** (using `primary_dataset_name` as the grouping key). In the output of the scorer, these dataset-level results are stored under `fold_scores`.
 
@@ -403,7 +411,7 @@ This means that:
 
 So the overall average is **not** a single global micro-average over all transcription units from all datasets combined. Instead, it is an equal-weight average over datasets.
 
-#### Primary and secondary ranking criteria
+### Primary and secondary ranking criteria
 
 The **primary per-test-set ranking metric** is **`cmer_micro`**:
 
@@ -417,7 +425,7 @@ The **secondary ranking metric** is **`pref_score_cmer_macro`**:
 - measures how consistently a system improves over the raw OCR input across transcription units
 - each transcription unit contributes equally
 
-#### Official competition ranking across test sets
+### Official competition ranking across test sets
 
 The scorer outputs per-dataset scores, including `cmer_micro` for each dataset.
 The **official competition ranking** is computed separately from these scorer outputs as a **weighted mean of per-test-set `cmer_micro`** across the 8 official test sets.
@@ -450,7 +458,7 @@ Thus, the three DTA test sets together contribute the same total weight as one o
 
 `impresso-nzz` and `overproof-combined` are not part of the official shared-task evaluation in this repository and therefore do not contribute to the official rankings.
 
-#### Per-language rankings
+### Per-language rankings
 
 In addition to the overall competition ranking, we report **per-language rankings** of submitted runs.
 
@@ -464,7 +472,7 @@ This means in terms of unversioned datasets:
 
 As in the overall ranking, these language-level rankings are based on weighted combinations of **per-test-set scores**. They should not be confused with the scorer’s internal notions of **micro** and **macro**, which refer to aggregation over transcription units within a dataset.
 
-### Results
+## Results
 
 The evaluation results are available in [HIPE_OCRepair_2026_evaluation_results.md](HIPE_OCRepair_2026_evaluation_results.md) and on the [HIPE-OCRepair-2026 website](https://hipe-eval.github.io/HIPE-OCRepair-2026/results).
 
