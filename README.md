@@ -216,7 +216,13 @@ Only the following datasets are part of the official shared-task evaluation in t
 
 `impresso-nzz` and `overproof-combined` are benchmark datasets, but they are never part of the official shared-task evaluation or rankings in this repository.
 
-**Note:** The repository contains dummy reference files in `data/reference-dummy/` and associated test outputs for pipeline testing purposes. See the Makefile for commands prefixed with `*-dummy` to run the isolated dummy pipeline.
+**Note on DTA test sets:** After test set creation, it was discovered that some DTA snippets lack coherent paragraph structure, with content from different lines mixed together. This makes meaningful OCR post-correction challenging, particularly for LLM-based approaches. To ensure fair evaluation, the DTA test sets (all three noise levels: `dta19-l0`, `dta19-l1`, `dta19-l2`) were reduced from 80 to 30 transcription units each, retaining only documents from the three most coherent books:
+
+- `1802-novalis_ofterdingen` (10 transcription units)
+- `1815-hoffmann_elixiere01` (10 transcription units)
+- `1826-eichendorff_taugenichts` (10 transcription units)
+
+The following five books were excluded from all DTA test sets: `1817-hoffmann_nachtstuecke01`, `1832-lenau_gedichte`, `1834-wienbarg_feldzuege`, `1852-alexis_ruhe01`, and `1863-schleiden_menschengeschlecht`.
 
 ### Evaluation outputs
 
