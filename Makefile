@@ -159,8 +159,15 @@ pairwise-overlaps-dummy: | $(RANKINGS_DIR_DUMMY)
 		--output results-dummy/pairwise-overlaps.tsv \
 		--verbose
 
+
 .PHONY: eval-full
-eval-full: score rankings results-md export-text-views export-text-views-normalized pairwise-overlaps
+eval-full: 
+	$(MAKE) score
+	$(MAKE) rankings
+	$(MAKE) results-md
+	$(MAKE) export-text-views
+	$(MAKE) export-text-views-normalized
+	$(MAKE) pairwise-overlaps
 
 .PHONY: eval-full-dummy
 eval-full-dummy:
@@ -174,7 +181,7 @@ eval-full-refresh:
 	rm -rf $(PER_RUN_DIR) $(RANKINGS_DIR) $(TEXT_VIEWS_DIR) $(TEXT_VIEWS_DIR_NORMALIZED) $(RESULTS_MD)
 	rm -f results/pairwise-overlaps.tsv
 	$(MAKE) eval-full
-	$(MAKE) results-md
+
 
 .PHONY: clean-dummy
 clean-dummy:
