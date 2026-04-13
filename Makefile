@@ -28,7 +28,7 @@ EXPORT_TEXT_VIEWS_NORMALIZE_FLAG := $(if $(filter 1 true yes on,$(EXPORT_TEXT_VI
 
 TEAMS_JSON         := lib/teams.json
 COMPETITION_CONFIG := lib/competition_config.json
-SCORER_VERSION     := 0.9.7
+SCORER_VERSION     := 0.9.9
 DATA_VERSION       := v0.9
 
 SUBMISSIONS           := $(wildcard $(SUBMISSIONS_DIR)/*.jsonl)
