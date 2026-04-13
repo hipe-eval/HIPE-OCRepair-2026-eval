@@ -1,7 +1,7 @@
 # HIPE-OCRepair 2026 – Evaluation Results
 
-- **Generated**: 2026-04-11 23:39:29
-- **Scorer**: hipe-ocrepair-scorer v0.9.4
+- **Generated**: 2026-04-13 09:54:40
+- **Scorer**: hipe-ocrepair-scorer v0.9.7
 - **Benchmark**: hipe-ocrepair-bench v0.9
 
 System names follow the pattern:  
