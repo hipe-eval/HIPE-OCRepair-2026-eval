@@ -1,0 +1,9 @@
+2026-04-13 09:53:13,955 [INFO] Scoring: blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1.jsonl <-> hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_en.jsonl
+2026-04-13 09:53:13,959 [DEBUG] Loaded 100 reference records
+2026-04-13 09:53:13,959 [DEBUG] Loaded 100 hypothesis records
+2026-04-13 09:53:13,959 [WARNING] Missing/invalid postcorrection for document 'IREX-1884-07-04-a-p0002_par32' (value: None) — imputed with original OCR
+2026-04-13 09:53:13,959 [DEBUG] Aligned 100 records
+2026-04-13 09:53:14,366 [INFO]   cmer_macro=0.0052  pref_cmer_macro=0.8700
+2026-04-13 09:53:14,366 [INFO] Postcorrection stats: 99/100 valid, 1/100 imputed with original OCR
+2026-04-13 09:53:14,366 [INFO] Results written to: results/per-run/blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1.json
+2026-04-13 09:53:14,366 [INFO] Log written to: results/per-run/blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_en_run1.json.log

@@ -1,0 +1,8 @@
+2026-04-13 09:53:17,238 [INFO] Scoring: bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run3.jsonl <-> hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_test_de.jsonl
+2026-04-13 09:53:17,242 [DEBUG] Loaded 80 reference records
+2026-04-13 09:53:17,243 [DEBUG] Loaded 80 hypothesis records
+2026-04-13 09:53:17,243 [DEBUG] Aligned 80 records
+2026-04-13 09:53:17,599 [INFO]   cmer_macro=0.0087  pref_cmer_macro=1.0000
+2026-04-13 09:53:17,599 [INFO] Postcorrection stats: 80/80 valid, 0/80 imputed with original OCR
+2026-04-13 09:53:17,599 [INFO] Results written to: results/per-run/bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run3.json
+2026-04-13 09:53:17,599 [INFO] Log written to: results/per-run/bnf-mistral_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run3.json.log

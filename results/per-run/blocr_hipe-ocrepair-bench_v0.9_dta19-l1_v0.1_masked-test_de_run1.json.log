@@ -1,0 +1,9 @@
+2026-04-13 09:53:11,102 [INFO] Scoring: blocr_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1.jsonl <-> hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_test_de.jsonl
+2026-04-13 09:53:11,108 [DEBUG] Loaded 80 reference records
+2026-04-13 09:53:11,108 [DEBUG] Loaded 80 hypothesis records
+2026-04-13 09:53:11,108 [WARNING] Missing/invalid postcorrection for document '1826-eichendorff_taugenichts_l1_p064' (value: 'None') — imputed with original OCR
+2026-04-13 09:53:11,108 [DEBUG] Aligned 80 records
+2026-04-13 09:53:11,463 [INFO]   cmer_macro=0.0181  pref_cmer_macro=0.6333
+2026-04-13 09:53:11,463 [INFO] Postcorrection stats: 79/80 valid, 1/80 imputed with original OCR
+2026-04-13 09:53:11,463 [INFO] Results written to: results/per-run/blocr_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1.json
+2026-04-13 09:53:11,463 [INFO] Log written to: results/per-run/blocr_hipe-ocrepair-bench_v0.9_dta19-l1_v0.1_masked-test_de_run1.json.log

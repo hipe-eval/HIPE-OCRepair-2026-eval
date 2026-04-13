@@ -1,0 +1,8 @@
+2026-04-13 09:53:07,120 [INFO] Scoring: baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1.jsonl <-> hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_test_de.jsonl
+2026-04-13 09:53:07,127 [DEBUG] Loaded 80 reference records
+2026-04-13 09:53:07,127 [DEBUG] Loaded 80 hypothesis records
+2026-04-13 09:53:07,127 [DEBUG] Aligned 80 records
+2026-04-13 09:53:07,481 [INFO]   cmer_macro=0.0561  pref_cmer_macro=0.0000
+2026-04-13 09:53:07,481 [INFO] Postcorrection stats: 80/80 valid, 0/80 imputed with original OCR
+2026-04-13 09:53:07,481 [INFO] Results written to: results/per-run/baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1.json
+2026-04-13 09:53:07,481 [INFO] Log written to: results/per-run/baseline-no-correction_hipe-ocrepair-bench_v0.9_dta19-l2_v0.1_masked-test_de_run1.json.log

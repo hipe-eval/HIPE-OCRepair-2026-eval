@@ -1,0 +1,88 @@
+{
+  "averaged_scores": {
+    "cmer_micro": [
+      0.0092,
+      0.0065,
+      0.0122
+    ],
+    "wmer_micro": [
+      0.0411,
+      0.0318,
+      0.0514
+    ],
+    "cmer_macro": [
+      0.0103,
+      0.0074,
+      0.0135
+    ],
+    "wmer_macro": [
+      0.0462,
+      0.0352,
+      0.0582
+    ],
+    "pref_score_cmer_macro": [
+      0.75,
+      0.63,
+      0.86
+    ],
+    "pref_score_wmer_macro": [
+      0.83,
+      0.74,
+      0.91
+    ],
+    "pcis_cmer_macro": [
+      0.0082,
+      0.0061,
+      0.0105
+    ],
+    "pcis_wmer_macro": [
+      0.0646,
+      0.0512,
+      0.0799
+    ]
+  },
+  "fold_scores": {
+    "impresso-snippets": {
+      "cmer_micro": [
+        0.0092,
+        0.0065,
+        0.0122
+      ],
+      "wmer_micro": [
+        0.0411,
+        0.0318,
+        0.0514
+      ],
+      "cmer_macro": [
+        0.0103,
+        0.0074,
+        0.0135
+      ],
+      "wmer_macro": [
+        0.0462,
+        0.0352,
+        0.0582
+      ],
+      "pref_score_cmer_macro": [
+        0.75,
+        0.63,
+        0.86
+      ],
+      "pref_score_wmer_macro": [
+        0.83,
+        0.74,
+        0.91
+      ],
+      "pcis_cmer_macro": [
+        0.0082,
+        0.0061,
+        0.0105
+      ],
+      "pcis_wmer_macro": [
+        0.0646,
+        0.0512,
+        0.0799
+      ]
+    }
+  }
+}

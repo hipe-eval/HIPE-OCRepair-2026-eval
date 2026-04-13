@@ -1,0 +1,8 @@
+2026-04-13 09:53:05,721 [INFO] Scoring: Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1.jsonl <-> hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_fr.jsonl
+2026-04-13 09:53:05,725 [DEBUG] Loaded 100 reference records
+2026-04-13 09:53:05,725 [DEBUG] Loaded 100 hypothesis records
+2026-04-13 09:53:05,725 [DEBUG] Aligned 100 records
+2026-04-13 09:53:06,133 [INFO]   cmer_macro=0.0258  pref_cmer_macro=0.3600
+2026-04-13 09:53:06,133 [INFO] Postcorrection stats: 100/100 valid, 0/100 imputed with original OCR
+2026-04-13 09:53:06,133 [INFO] Results written to: results/per-run/Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1.json
+2026-04-13 09:53:06,133 [INFO] Log written to: results/per-run/Zakaria-ENSIAS_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1.json.log

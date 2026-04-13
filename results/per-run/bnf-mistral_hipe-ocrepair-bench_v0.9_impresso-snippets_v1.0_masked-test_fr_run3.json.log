@@ -1,0 +1,8 @@
+2026-04-13 09:53:27,691 [INFO] Scoring: bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run3.jsonl <-> hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_fr.jsonl
+2026-04-13 09:53:27,694 [DEBUG] Loaded 100 reference records
+2026-04-13 09:53:27,694 [DEBUG] Loaded 100 hypothesis records
+2026-04-13 09:53:27,694 [DEBUG] Aligned 100 records
+2026-04-13 09:53:28,110 [INFO]   cmer_macro=0.0056  pref_cmer_macro=0.9300
+2026-04-13 09:53:28,110 [INFO] Postcorrection stats: 100/100 valid, 0/100 imputed with original OCR
+2026-04-13 09:53:28,110 [INFO] Results written to: results/per-run/bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run3.json
+2026-04-13 09:53:28,110 [INFO] Log written to: results/per-run/bnf-mistral_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run3.json.log

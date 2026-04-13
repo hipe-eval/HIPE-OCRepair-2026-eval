@@ -1,0 +1,8 @@
+2026-04-13 09:53:08,274 [INFO] Scoring: baseline-no-correction_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1.jsonl <-> hipe-ocrepair-bench_v0.9_icdar2017_v1.1_test_fr.jsonl
+2026-04-13 09:53:08,282 [DEBUG] Loaded 100 reference records
+2026-04-13 09:53:08,282 [DEBUG] Loaded 100 hypothesis records
+2026-04-13 09:53:08,282 [DEBUG] Aligned 100 records
+2026-04-13 09:53:09,036 [INFO]   cmer_macro=0.0186  pref_cmer_macro=0.0000
+2026-04-13 09:53:09,037 [INFO] Postcorrection stats: 100/100 valid, 0/100 imputed with original OCR
+2026-04-13 09:53:09,037 [INFO] Results written to: results/per-run/baseline-no-correction_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1.json
+2026-04-13 09:53:09,037 [INFO] Log written to: results/per-run/baseline-no-correction_hipe-ocrepair-bench_v0.9_icdar2017_v1.1_masked-test_fr_run1.json.log

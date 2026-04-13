@@ -1,0 +1,9 @@
+2026-04-13 09:53:14,458 [INFO] Scoring: blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1.jsonl <-> hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_test_fr.jsonl
+2026-04-13 09:53:14,461 [DEBUG] Loaded 100 reference records
+2026-04-13 09:53:14,461 [DEBUG] Loaded 100 hypothesis records
+2026-04-13 09:53:14,461 [WARNING] Missing/invalid postcorrection for document 'FedGazFr-1871-05-13-a-p0019_par19' (value: None) — imputed with original OCR
+2026-04-13 09:53:14,461 [DEBUG] Aligned 100 records
+2026-04-13 09:53:14,875 [INFO]   cmer_macro=0.0121  pref_cmer_macro=0.4600
+2026-04-13 09:53:14,875 [INFO] Postcorrection stats: 99/100 valid, 1/100 imputed with original OCR
+2026-04-13 09:53:14,875 [INFO] Results written to: results/per-run/blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1.json
+2026-04-13 09:53:14,875 [INFO] Log written to: results/per-run/blocr_hipe-ocrepair-bench_v0.9_impresso-snippets_v1.0_masked-test_fr_run1.json.log

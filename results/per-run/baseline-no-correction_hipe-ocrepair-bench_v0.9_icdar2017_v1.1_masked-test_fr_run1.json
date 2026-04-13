@@ -1,0 +1,88 @@
+{
+  "averaged_scores": {
+    "cmer_micro": [
+      0.0184,
+      0.0152,
+      0.022
+    ],
+    "wmer_micro": [
+      0.1051,
+      0.0951,
+      0.1166
+    ],
+    "cmer_macro": [
+      0.0186,
+      0.0154,
+      0.0223
+    ],
+    "wmer_macro": [
+      0.1061,
+      0.0962,
+      0.1173
+    ],
+    "pref_score_cmer_macro": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "pref_score_wmer_macro": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "pcis_cmer_macro": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "pcis_wmer_macro": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "fold_scores": {
+    "icdar2017": {
+      "cmer_micro": [
+        0.0184,
+        0.0152,
+        0.022
+      ],
+      "wmer_micro": [
+        0.1051,
+        0.0951,
+        0.1166
+      ],
+      "cmer_macro": [
+        0.0186,
+        0.0154,
+        0.0223
+      ],
+      "wmer_macro": [
+        0.1061,
+        0.0962,
+        0.1173
+      ],
+      "pref_score_cmer_macro": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pref_score_wmer_macro": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pcis_cmer_macro": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pcis_wmer_macro": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  }
+}
