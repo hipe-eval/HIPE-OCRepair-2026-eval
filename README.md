@@ -240,6 +240,28 @@ diff results/text-views-normalized/<runname>.cor.txt results/text-views-normaliz
 code --diff results/text-views-normalized/<runname>.cor.txt results/text-views-normalized/<runname>.gth.txt
 ```
 
+#### Pairwise significance testing
+
+While ranking tables show 95% confidence intervals for each system, overlapping CIs cannot definitively determine whether two systems are significantly different. To address this, pairwise significance testing using paired bootstrap methods is available.
+
+**`results/pairwise-overlaps.tsv`** contains statistical comparisons of all consecutive systems with overlapping confidence intervals, showing:
+
+- Mean difference between systems
+- 95% CI of the difference
+- p-values and significance indicators
+- Winner determination or statistical ties
+
+Generate the pairwise analysis with:
+
+```bash
+make pairwise-overlaps
+```
+
+For detailed documentation on interpretation and use cases:
+
+- [PAIRWISE_TESTING.md](PAIRWISE_TESTING.md) — Full statistical methodology and analysis guide
+- [QUICKSTART_PAIRWISE.md](QUICKSTART_PAIRWISE.md) — Quick start guide with practical examples
+
 ### Metrics and rankings
 
 The primary evaluation metric is **character-level Match Error Rate (cMER)**. Secondary metrics include word-level MER and preference-based comparison scores against the raw OCR baseline.
