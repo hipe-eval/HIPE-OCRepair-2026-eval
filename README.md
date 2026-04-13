@@ -18,6 +18,29 @@ The repository is designed to ensure transparent and reproducible evaluation of 
 - :open_file_folder: HIPE-OCRepair-2026 [data set releases](https://github.com/hipe-eval/HIPE-OCRepair-2026-data/releases)
 - :low_brightness: HIPE-OCRepair-2026 [baseline](https://github.com/hipe-eval/HIPE-OCRepair-2026-baseline)
 
+## Table of Contents
+
+- [Task](#task)
+- [Repository structure](#repository-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+  - [To run the evaluation](#to-run-the-evaluation)
+- [Submission format](#submission-format)
+- [Evaluation outputs](#evaluation-outputs)
+  - [Per-run scores](#per-run-scores)
+  - [Rankings](#rankings)
+  - [Qualitative error analysis](#qualitative-error-analysis)
+  - [Pairwise significance testing](#pairwise-significance-testing)
+- [Metrics and rankings](#metrics-and-rankings)
+  - [Aggregation levels](#aggregation-levels)
+  - [Metric definitions used in the reports](#metric-definitions-used-in-the-reports)
+  - [Confidence intervals](#confidence-intervals)
+  - [Per-dataset scores and overall averages](#per-dataset-scores-and-overall-averages)
+  - [Primary and secondary ranking criteria](#primary-and-secondary-ranking-criteria)
+  - [Official competition ranking across test sets](#official-competition-ranking-across-test-sets)
+  - [Per-language rankings](#per-language-rankings)
+- [Results](#results)
+
 ### Task
 
 The shared task focuses on OCR post-correction for historical documents. Participants develop systems that automatically correct OCR errors in historical text transcription units that are larger than a single line. Depending on the dataset, a transcription unit may correspond to a paragraph, article, page, or semantic chunk, allowing systems to make more global corrections than line-level post-correction.
@@ -31,24 +54,23 @@ System outputs are evaluated against gold-standard reference data using the offi
 ```bash
 data/
   reference/              # Gold-standard reference JSONL files (one per dataset/split/language)
-  reference-dummy/        # Synthetic reference files for dry-run testing
   systems/                # Participant submission JSONL files
-  systems-dummy/          # Dummy baseline files (generated; not committed)
 lib/
   score_one.py                # Score a single hypothesis against its reference
   build_rankings.py           # Aggregate per-run scores into ranked TSV files
   build_results_md.py         # Render TSV rankings as a Markdown results page
   create_dummy_baselines.py   # Generate dummy baseline hypotheses from reference files
+  pairwise_significance.py    # Compare two specific systems using paired bootstrap
+  pairwise_overlaps.py        # Test all consecutive systems with overlapping CIs
   competition_config.json     # Official competition test sets and design weights
   teams.json                  # Team name → institution mapping
-results/                      # Real pipeline output (regenerated; not committed)
-  per-run/
-  system-rankings/
-results-dummy/                # Dummy pipeline output (regenerated; not committed)
-  per-run/
-  system-rankings/
+results/                      # Pipeline output (regenerated; not committed)
+  per-run/                    # Detailed JSON scores and logs for each submission
+  system-rankings/            # TSV ranking tables
+  text-views/                 # Plain text exports for diff-based error inspection
+  text-views-normalized/      # Normalized text views (as used in scoring)
+  pairwise-overlaps.tsv       # Pairwise significance test results
 HIPE_OCRepair_2026_evaluation_results.md        # Final results page (generated)
-HIPE_OCRepair_2026_evaluation_results_dummy.md  # Dummy results page (generated)
 ```
 
 ### Prerequisites
